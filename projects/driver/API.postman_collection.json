@@ -1,0 +1,654 @@
+{
+	"info": {
+		"_postman_id": "4970752d-f01c-4211-bd40-05fd8e31a7aa",
+		"name": "API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27149950",
+		"_collection_link": "https://dark-meadow-298813.postman.co/workspace/HW_3~e8b972ad-9e4a-4827-ba9d-d09956357787/collection/27149950-4970752d-f01c-4211-bd40-05fd8e31a7aa?action=share&creator=27149950&source=collection_link"
+	},
+	"item": [
+		{
+			"name": "user/:id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/user/f837a3c7-7ff9-4e70-9201-7a3f406a9238",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"user",
+						"f837a3c7-7ff9-4e70-9201-7a3f406a9238"
+					]
+				},
+				"description": "Метод получения информации о пользователе. Нужно прикрепить id в url. Id будет получен после регистрации. В других методах id пользователя берется из jwt в Заголовке."
+			},
+			"response": [
+				{
+					"name": "before everything",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/user/f2df44f1-cf1c-4ebd-ac29-7835be10e20c",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"user",
+								"f2df44f1-cf1c-4ebd-ac29-7835be10e20c"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 28 Oct 2023 21:59:09 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "71"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": \"f2df44f1-cf1c-4ebd-ac29-7835be10e20c\",\n    \"name\": \"John\",\n    \"balance\": 0\n}"
+				},
+				{
+					"name": "first user after transfer 2->1",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/user/3a29833e-bb0c-4c9b-ad0b-4ed21068e908",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"user",
+								"3a29833e-bb0c-4c9b-ad0b-4ed21068e908"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 28 Oct 2023 22:20:22 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "74"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": \"3a29833e-bb0c-4c9b-ad0b-4ed21068e908\",\n    \"name\": \"Ivan\",\n    \"balance\": 10.1\n}"
+				}
+			]
+		},
+		{
+			"name": "root",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						""
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "good",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								""
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 28 Oct 2023 21:34:42 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "23"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"ver\": \"1.0.0-alpha.1\"\n}"
+				}
+			]
+		},
+		{
+			"name": "user/create",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"John\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/user/create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"user",
+						"create"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "first user",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Ivan\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/user/create",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"user",
+								"create"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 28 Oct 2023 21:57:44 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "71"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": \"3a29833e-bb0c-4c9b-ad0b-4ed21068e908\",\n    \"name\": \"Ivan\",\n    \"balance\": 0\n}"
+				},
+				{
+					"name": "second user",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/user/create",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"user",
+								"create"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 28 Oct 2023 21:58:21 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "71"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"id\": \"f2df44f1-cf1c-4ebd-ac29-7835be10e20c\",\n    \"name\": \"John\",\n    \"balance\": 0\n}"
+				}
+			]
+		},
+		{
+			"name": "balance/add",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"receiver_id\": \"f2df44f1-cf1c-4ebd-ac29-7835be10e20c\",\n    \"amount\": -75.0\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/balance/add",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"balance",
+						"add"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "adding",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"receiver_id\": \"f2df44f1-cf1c-4ebd-ac29-7835be10e20c\",\n    \"amount\": 100.0\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/balance/add",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"balance",
+								"add"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 28 Oct 2023 21:59:50 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "22"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"client_balance\": 100\n}"
+				},
+				{
+					"name": "bad subtracting",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"receiver_id\": \"f2df44f1-cf1c-4ebd-ac29-7835be10e20c\",\n    \"amount\": -125.0\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/balance/add",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"balance",
+								"add"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 28 Oct 2023 22:06:37 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "36"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"access denied\",\n    \"code\": 0\n}"
+				},
+				{
+					"name": "good substracting",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"receiver_id\": \"f2df44f1-cf1c-4ebd-ac29-7835be10e20c\",\n    \"amount\": -75.0\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/balance/add",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"balance",
+								"add"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 28 Oct 2023 22:12:24 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "21"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"client_balance\": 25\n}"
+				}
+			]
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"sender_id\": \"f2df44f1-cf1c-4ebd-ac29-7835be10e20c\",\n    \"receiver_id\": \"f2df44f1-cf1c-4ebd-ac29-7835be10e20c\",\n    \"amount\": 5\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/balance/transfer",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"balance",
+						"transfer"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "good",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"sender_id\": \"f2df44f1-cf1c-4ebd-ac29-7835be10e20c\",\n    \"receiver_id\": \"3a29833e-bb0c-4c9b-ad0b-4ed21068e908\",\n    \"amount\": 10.10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/balance/transfer",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"balance",
+								"transfer"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 28 Oct 2023 22:18:44 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "23"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"client_balance\": 14.9\n}"
+				},
+				{
+					"name": "bad transfer",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"sender_id\": \"f2df44f1-cf1c-4ebd-ac29-7835be10e20c\",\n    \"receiver_id\": \"3a29833e-bb0c-4c9b-ad0b-4ed21068e908\",\n    \"amount\": 150\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/balance/transfer",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"balance",
+								"transfer"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 28 Oct 2023 22:19:20 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "36"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"access denied\",\n    \"code\": 0\n}"
+				},
+				{
+					"name": "transfer to youself",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"sender_id\": \"f2df44f1-cf1c-4ebd-ac29-7835be10e20c\",\n    \"receiver_id\": \"f2df44f1-cf1c-4ebd-ac29-7835be10e20c\",\n    \"amount\": 5\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/balance/transfer",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"balance",
+								"transfer"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 28 Oct 2023 22:19:46 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "36"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"message\": \"access denied\",\n    \"code\": 0\n}"
+				}
+			]
+		}
+	]
+}

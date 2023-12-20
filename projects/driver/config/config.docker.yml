@@ -1,0 +1,32 @@
+apiVersion: "1.0.0"
+
+app:
+  name: "driver"
+  env: "local"
+
+logger:
+  level: "trace"
+  encoding: "console"
+
+sentry:
+  enable: false
+  dsn: "<sentry_dsn_for_service>"
+
+graceful_shutdown:
+  delay: "5s"
+  wait_timeout: "5s"
+  callback_timeout: "2s"
+
+http:
+  host: "localhost"
+  port: 8080
+  read_timeout: "1s"
+  write_timeout: "1s"
+
+postgres:
+  host: "localhost"
+  port: "5444"
+  username: "postgres"
+  password: "password"
+  db-name: "postgres"
+  ssl-mode: "disable"
