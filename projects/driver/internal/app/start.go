@@ -1,0 +1,58 @@
+package app
+
+import (
+	"context"
+	"fmt"
+	ginzap "github.com/gin-contrib/zap"
+	"gitlab/ArtemFed/mts-final-taxi/pkg/graceful_shutdown"
+	httpServer "gitlab/ArtemFed/mts-final-taxi/pkg/http_server"
+	"gitlab/ArtemFed/mts-final-taxi/pkg/metrics"
+	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/handler/generate"
+	myHttp "gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/handler/http"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
+	"go.opentelemetry.io/otel/sdk/trace"
+	"time"
+)
+
+// Start - Единая точка запуска приложения
+func (a *App) Start(ctx context.Context) {
+
+	go a.startHTTPServer(ctx)
+
+	if err := graceful_shutdown.Wait(a.cfg.GracefulShutdown); err != nil {
+		a.logger.Error(fmt.Sprintf("Failed to gracefully shutdown app: %s", err.Error()))
+	} else {
+		a.logger.Info("App gracefully stopped")
+	}
+}
+
+func (a *App) startHTTPServer(ctx context.Context) {
+	// Создаем общий роутинг http сервера
+	router := httpServer.NewRouter()
+
+	// Добавляем системные роуты
+	router.WithHandleGET("/metrics", metrics.HandleFunc())
+
+	tp := trace.NewTracerProvider()
+
+	middlewareTracer := generate.MiddlewareFunc(otelgin.Middleware("driver", otelgin.WithTracerProvider(tp)))
+	middlewareGinZap := generate.MiddlewareFunc(ginzap.Ginzap(a.logger, time.RFC3339, true))
+	middlewares := []generate.MiddlewareFunc{
+		middlewareTracer,
+		middlewareGinZap,
+	}
+
+	// Добавляем роуты api
+	myHttp.InitHandler(router.GetRouter(), a.logger, middlewares, &a.service)
+
+	// Создаем сервер
+	srv := httpServer.New(a.cfg.Http)
+	srv.RegisterRoutes(&router)
+
+	// Стартуем
+	a.logger.Info(fmt.Sprintf("Starting HTTP server at %s:%d", a.cfg.Http.Host, a.cfg.Http.Port))
+	if err := srv.Start(); err != nil {
+		a.logger.Error(fmt.Sprintf("Fail with %s HTTP server: %s", a.cfg.App.Name, err.Error()))
+		graceful_shutdown.Now()
+	}
+}

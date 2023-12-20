@@ -1,0 +1,5 @@
+output: internal/handler/generate/oapi-codegen.go
+package: generate
+generate:
+  - types
+  - gin-server
