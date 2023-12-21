@@ -24,17 +24,17 @@ http:
   write_timeout: "1s"
 
 postgres:
-  host: "location_db"
-  port: "5432"
+  host: "localhost"
+  port: "5444"
   username: "postgres"
   password: "password"
-  db-name: "mts_location_db"
+  db-name: "postgres"
   ssl-mode: "disable"
 
 mongo:
   database: driver
-  uri: "mongodb://mongo1:27017,mongo2:27018,mongo3:27019/demo?replicaSet=rs0&authSource=admin&readPreference=primaryPreferred"
-migrations_mongo:
-  uri: "mongodb://mongo1:27017,mongo2:27018,mongo3:27019/demo?replicaSet=rs0&authSource=admin&readPreference=primaryPreferred"
+  uri: "mongodb://localhost:27017,localhost:27018,localhost:27019/demo?replicaSet=rs0&authSource=admin&readPreference=primaryPreferred"
+migrations:
+  uri: "mongodb://localhost:27017,localhost:27018,localhost:27019/demo?replicaSet=rs0&authSource=admin&readPreference=primaryPreferred"
   path: "migrations"
   enabled: true

@@ -1,0 +1,10 @@
+# location-client-oapi-codegen.yaml for location client
+
+output: projects/driver/internal/client/generated/location-client-oapi-codegen.go
+package: generated
+generate:
+  - types
+  - client
+
+# To RUN from root:
+# oapi-codegen --config .codegen/location-client-oapi-codegen.yaml .codegen/location.yaml

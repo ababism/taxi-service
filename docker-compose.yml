@@ -1,32 +1,92 @@
 version: '3.9'
 
 services:
-  user-svc:
-    image: 'go-mts-user-svc:latest'
-    build: user-svc
+  driver-svc:
+    build:
+      context: './'
+      dockerfile: 'driver.Dockerfile'
+    image: 'go-mts-driver-svc:latest'
     ports:
       - "8080:8080"
     depends_on:
-      user_db:
+      mongo1:
         condition: service_healthy
     environment:
       - DB_PASSWORD=password
-  user_db:
-    container_name: mts_user_db
+
+  mongo1:
+    image: mongo:7.0
+    command: [ "--replSet", "rs0", "--bind_ip_all", "--port", "27017" ]
+    ports:
+      - 27017:27017
+    healthcheck:
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo1:27017',priority:1},{_id:1,host:'mongo2:27018',priority:0.5},{_id:2,host:'mongo3:27019',priority:0.5}]}) }" | mongosh --port 27017 --quiet
+      interval: 5s
+      timeout: 30s
+      start_period: 0s
+      retries: 30
+    volumes:
+      - "mongo1_data:/data/db"
+      - "mongo1_config:/data/configdb"
+
+  mongo2:
+    container_name: mongo2
+    image: mongo:7.0
+    command: [ "--replSet", "rs0", "--bind_ip_all", "--port", "27018" ]
+    ports:
+      - 27018:27018
+    volumes:
+      - "mongo2_data:/data/db"
+      - "mongo2_config:/data/configdb"
+
+  mongo3:
+    container_name: mongo3
+    image: mongo:7.0
+    command: [ "--replSet", "rs0", "--bind_ip_all", "--port", "27019" ]
+    ports:
+      - 27019:27019
+    volumes:
+      - "mongo3_data:/data/db"
+      - "mongo3_config:/data/configdb"
+
+  location-svc:
+    image: 'go-mts-location-svc:latest'
+    build:
+      context: './'
+      dockerfile: 'location.Dockerfile'
+    ports:
+      - "8084:8084"
+    depends_on:
+      location_db:
+        condition: service_healthy
+    environment:
+      - DB_PASSWORD=password
+
+  location_db:
+    container_name: mts_location_db
     restart: always
     image: postgres:latest
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
     ports:
-      - "5437:5432"
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: "mts_location_db"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "password"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres" ]
       interval: 5s
       timeout: 10s
       retries: 5
-#    command: ["bash", "-c", "pg_isready -U postgres -d postgres && psql -U postgres -d postgres -f /user-svc/schema/000001_init.up.sql"]
+#    command: ["bash", "-c", "pg_isready -U postgres -d postgres && psql -U postgres -d postgres -f /location-svc/schema/000001_init.up.sql"]
 #    volumes:
-#      - ./.database/postgres/user_data:/var/lib/postgresql/data
+#      - ./.database/postgres/location_data:/var/lib/postgresql/data
 networks:
   host:
+
+volumes:
+  mongo1_data:
+  mongo2_data:
+  mongo3_data:
+  mongo1_config:
+  mongo2_config:
+  mongo3_config:

@@ -1,0 +1,11 @@
+# driver-oapi-codegen.yaml for driver api + server
+
+output: projects/driver/internal/handler/generated/driver-oapi-codegen.go
+package: generated
+generate:
+  - types
+  - gin-server
+
+
+# To RUN from root:
+# oapi-codegen --config .codegen/driver-oapi-codegen.yaml .codegen/driver.yaml

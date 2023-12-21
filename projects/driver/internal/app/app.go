@@ -3,11 +3,14 @@ package app
 import (
 	"context"
 	"fmt"
+	"gitlab/ArtemFed/mts-final-taxi/pkg/mylogger"
+	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/postgres"
 
 	"gitlab/ArtemFed/mts-final-taxi/pkg/graceful_shutdown"
 	"gitlab/ArtemFed/mts-final-taxi/pkg/metrics"
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/config"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/postgres"
+	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/mongo"
+	//"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/postgres"
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/service"
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/service/adapters"
 
@@ -26,7 +29,7 @@ type App struct {
 func NewApp(cfg *config.Config) (*App, error) {
 	// TODO dsn
 	sentry_dsn := ""
-	logger, err := initLogger(false, sentry_dsn, "production")
+	logger, err := mylogger.InitLogger(false, sentry_dsn, "production")
 	if err != nil {
 		return nil, err
 	}
@@ -51,9 +54,17 @@ func NewApp(cfg *config.Config) (*App, error) {
 
 	db, err := postgres.NewPostgresDB(cfg)
 	if err != nil {
-		logger.Fatal("error while creating PostgreSQL DB:", zap.Error(err))
+		logger.Fatal("error while connecting to PostgreSQL DB:", zap.Error(err))
 	}
 	userRepo := postgres.NewDriverRepository(db)
+
+	// TODO add shutdown Callback
+	driverRepo := mongo.NewDriverRepository(logger)
+	err = driverRepo.Connect(context.TODO(), cfg.Mongo, cfg.MigrationsMongo)
+	if err != nil {
+		logger.Fatal("error while connecting to Mongo DB:", zap.Error(err))
+	}
+
 	driverService := service.NewDriverService(userRepo)
 
 	logger.Info("Init Driver – success")

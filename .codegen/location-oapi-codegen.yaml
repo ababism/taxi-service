@@ -1,0 +1,10 @@
+# location-oapi-codegen.yaml for location api + server
+
+output: projects/location/internal/handler/generated/location-oapi-codegen.go
+package: generated
+generate:
+  - types
+  - gin-server
+
+# To RUN from root:
+# oapi-codegen --config .codegen/location-oapi-codegen.yaml .codegen/location.yaml

@@ -10,15 +10,16 @@ import (
 )
 
 func NewPostgresDB(cfg *config.Config) (*sqlx.DB, error) {
-	dpParams := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
+	dbParams := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
 		cfg.Postgres.Host,
 		cfg.Postgres.Port,
 		cfg.Postgres.Username,
 		cfg.Postgres.DBName,
 		cfg.Postgres.Password,
-		cfg.Postgres.SSLMode)
-
-	db, err := sqlx.Open("postgres", dpParams)
+		cfg.Postgres.SSLMode,
+	)
+	fmt.Println("dbParams", dbParams)
+	db, err := sqlx.Open("postgres", dbParams)
 	if err != nil {
 		return nil, err
 	}

@@ -1,12 +1,22 @@
-package http
+package driver_api
 
 import (
 	"errors"
+	"fmt"
+	"github.com/google/uuid"
+	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/handler/http/models"
+	"go.uber.org/zap"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
 )
+
+// TODO maybe c.AbortWithStatusJSON ?
+func NewErrorResponse(c *gin.Context, l *zap.Logger, statusCode int, message string) {
+	l.Info(fmt.Sprintf("%s: %d %s", c.Request.URL, statusCode, message))
+	c.AbortWithStatusJSON(statusCode, models.Error{Message: message})
+}
 
 //func BindRequestBody(c *gin.Context, obj any) bool {
 //	if err := c.BindJSON(obj); err != nil {
@@ -16,10 +26,6 @@ import (
 //	return true
 //}
 
-//func NewErrorResponse(c *gin.Context, statusCode int, message string) {
-//	logrus.Infof("%s: %d %s", c.Request.URL, statusCode, message)
-//	c.AbortWithStatusJSON(statusCode, models.Error{Message: message})
-//}
 //func ErrorResponse(c *gin.Context, statusCode int, err error) {
 //	logrus.Infof("%s: %d %s", c.Request.URL, statusCode, err.Error())
 //	c.AbortWithStatusJSON(statusCode, models.Error{Message: err.Error()})
@@ -47,15 +53,15 @@ func MapErrorToCode(c *gin.Context, err error) int {
 }
 
 // ParseUUIDFromParam makes Error response if it couldn't parse token, returns true if everything is ok
-//func ParseUUIDFromParam(c *gin.Context) (uuid.UUID, bool) {
-//	id := c.Param("id")
-//	itemUUID, err := uuid.Parse(id)
-//	if err != nil {
-//		NewErrorResponse(c, MapErrorToCode(c, domain.ErrBadUUID), domain.ErrBadUUID.Error())
-//		return uuid.Nil, false
-//	}
-//	return itemUUID, true
-//}
+func ParseUUIDFromParam(c *gin.Context, l *zap.Logger, key string) (uuid.UUID, bool) {
+	id := c.Param(key)
+	itemUUID, err := uuid.Parse(id)
+	if err != nil {
+		NewErrorResponse(c, l, MapErrorToCode(c, domain.ErrBadUUID), domain.ErrBadUUID.Error())
+		return uuid.Nil, false
+	}
+	return itemUUID, true
+}
 
 //func parseUUID(c *gin.Context, id string) (uuid.UUID, bool) {
 //	itemUUID, err := uuid.Parse(id)

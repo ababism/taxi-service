@@ -1,0 +1,73 @@
+[
+  {
+    "create": "driver",
+    "validator": {
+      "$jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "trip_id",
+          "from",
+          "to",
+          "status"
+        ],
+        "properties": {
+          "trip_id": {
+            "bsonType": "string",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+          },
+          "driver_id": {
+            "bsonType": ["string", "null"]
+          },
+          "from": {
+            "bsonType": "object",
+            "required": ["lat", "lng"],
+            "properties": {
+              "lat": { "bsonType": "number" },
+              "lng": { "bsonType": "number" }
+            }
+          },
+          "to": {
+            "bsonType": "object",
+            "required": ["lat", "lng"],
+            "properties": {
+              "lat": { "bsonType": "number" },
+              "lng": { "bsonType": "number" }
+            }
+          },
+          "price": {
+            "bsonType": ["object", "null"],
+            "properties": {
+              "amount": { "bsonType": "number" },
+              "currency": { "bsonType": "string" }
+            },
+            "required": ["amount", "currency"]
+          },
+          "status": {
+            "bsonType": "string",
+            "enum": [
+              "DRIVER_SEARCH",
+              "DRIVER_FOUND",
+              "ON_POSITION",
+              "STARTED",
+              "ENDED",
+              "CANCELED"
+            ]
+          }
+        }
+      }
+    },
+    "validationLevel": "strict"
+  },
+  {
+    "createIndexes": "driver",
+    "indexes": [
+      {
+        "key": {
+          "trip_id": 1
+        },
+        "name": "trip_unique",
+        "unique": true
+      }
+    ]
+  }
+]
