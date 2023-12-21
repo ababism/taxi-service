@@ -4,10 +4,10 @@ import (
 	"fmt"
 )
 
-type Info struct {
-	Name        string `yaml:"name"`
-	Environment string `yaml:"env"`
-	Version     string `yaml:"version"`
+type Config struct {
+	Name        string `mapstructure:"name"`
+	Environment string `mapstructure:"env"`
+	Version     string `mapstructure:"version"`
 }
 
 const (
@@ -16,8 +16,8 @@ const (
 	local      = "local"
 )
 
-func InitInfo(buildVersion string) *Info {
-	info := &Info{}
+func InitInfo(buildVersion string) *Config {
+	info := &Config{}
 	info.Version = buildVersion
 	// TODO Ставим флаги
 	//config.StringVar(&info.Name, "app.name", "unknown app", "description")
@@ -28,21 +28,21 @@ func InitInfo(buildVersion string) *Info {
 	return info
 }
 
-func (i *Info) Release() string {
+func (i *Config) Release() string {
 	return fmt.Sprintf("%s-%s", i.Environment, i.Version)
 }
 
 // IsProduction defines is current .env a "production"
-func (i *Info) IsProduction() bool {
+func (i *Config) IsProduction() bool {
 	return i.Environment == production
 }
 
 // IsStaging defines is current .env a "staging"
-func (i *Info) IsStaging() bool {
+func (i *Config) IsStaging() bool {
 	return i.Environment == staging
 }
 
 // IsLocal defines is current .env a "local"
-func (i *Info) IsLocal() bool {
+func (i *Config) IsLocal() bool {
 	return i.Environment == local
 }

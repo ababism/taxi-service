@@ -24,8 +24,9 @@ func NewDriverRepository(logger *zap.Logger) *DriveRepository {
 	return &DriveRepository{logger: logger}
 }
 
-func (r *DriveRepository) Connect(ctx context.Context, cfg *MongoCfg, migrateCfg *MigrationsCfg) error {
+func (r *DriveRepository) Connect(ctx context.Context, cfg *Config, migrateCfg *ConfigMigrations) error {
 	r.logger.Info("Connecting to mongo...")
+	r.logger.Info(fmt.Sprintf("mongo params: uri: %s; database: %s", cfg.Uri, cfg.Database))
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(cfg.Uri))
 	if err != nil {
 		r.logger.Error("new mongo client create error:", zap.Error(err))

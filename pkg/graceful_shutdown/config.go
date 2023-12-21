@@ -11,9 +11,9 @@ const (
 )
 
 type Config struct {
-	Delay           time.Duration `yaml:"delay"`
-	WaitTimeout     time.Duration `yaml:"wait_timeout"`
-	CallbackTimeout time.Duration `yaml:"callback_timeout"`
+	Delay           time.Duration `mapstructure:"delay"`
+	WaitTimeout     time.Duration `mapstructure:"wait_timeout"`
+	CallbackTimeout time.Duration `mapstructure:"callback_timeout"`
 }
 
 func NewDefaultConfig() *Config {
