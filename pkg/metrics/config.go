@@ -6,8 +6,8 @@ const (
 )
 
 type Config struct {
-	HouseEnable  bool   `yaml:"enable"`
-	HouseAddress string `yaml:"address"`
+	HouseEnable  bool   `mapstructure:"enable"`
+	HouseAddress string `mapstructure:"address"`
 }
 
 func NewConfig(prefix string) *Config {

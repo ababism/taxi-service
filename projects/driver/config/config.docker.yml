@@ -8,7 +8,7 @@ logger:
   level: "trace"
   encoding: "console"
 
-sentry:
+metrics:
   enable: false
   dsn: "<sentry_dsn_for_service>"
 
@@ -33,8 +33,9 @@ postgres:
 
 mongo:
   database: driver
-  uri: "mongodb://mongo1:27017,mongo2:27018,mongo3:27019/demo?replicaSet=rs0&authSource=admin&readPreference=primaryPreferred"
+  uri: "mongodb://mongo1:27017,mongo2:27018,mongo3:27019/driver?replicaSet=rs0&authSource=admin&readPreference=primaryPreferred"
+
 migrations_mongo:
-  uri: "mongodb://mongo1:27017,mongo2:27018,mongo3:27019/demo?replicaSet=rs0&authSource=admin&readPreference=primaryPreferred"
+  uri: "mongodb://mongo1:27017,mongo2:27018,mongo3:27019/driver?replicaSet=rs0&authSource=admin&readPreference=primaryPreferred"
   path: "migrations"
   enabled: true
