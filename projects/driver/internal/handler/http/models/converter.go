@@ -16,6 +16,16 @@ func ToTripResponse(t domain.Trip) generated.Trip {
 	}
 }
 
+func ToTripsResponse(t []domain.Trip) []generated.Trip {
+	var tripsResponse []generated.Trip
+
+	for _, trip := range t {
+		tripsResponse = append(tripsResponse, ToTripResponse(trip))
+	}
+
+	return tripsResponse
+}
+
 func ToLatLngLiteralResponse(lll *domain.LatLngLiteral) *generated.LatLngLiteral {
 	return &generated.LatLngLiteral{
 		Lat: lll.Lat,
