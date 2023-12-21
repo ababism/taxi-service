@@ -3,18 +3,16 @@ package adapters
 import (
 	"context"
 	"github.com/google/uuid"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
 )
 
-//type DriverService interface {
-//	Create(ctx context.Context, user domain.User) (domain.User, error)
-//	Get(ctx context.Context, id uuid.UUID) (domain.User, error)
-//	GetBalance(ctx context.Context, userID uuid.UUID) (float64, error)
-//	AddToBalance(ctx context.Context, userID uuid.UUID, amount float64) (float64, error)
-//	TransferCurrency(ctx context.Context, senderID uuid.UUID, receiverID uuid.UUID, amount float64) (newSenderBalance float64, err error)
-//}
-
 type DriverService interface {
-	Get(ctx context.Context, userId uuid.UUID, tripId uuid.UUID) (domain.Trip, error)
+	GetTripByID(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID) (domain.Trip, error)
+	AcceptTrip(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID) (domain.Trip, error)
+	CancelTrip(ctx context.Context, diverId uuid.UUID, tripId openapi_types.UUID, reason *string) (domain.Trip, error)
+	StartTrip(ctx context.Context, diverId openapi_types.UUID, tripId openapi_types.UUID) (domain.Trip, error)
+	EndTrip(ctx context.Context, diverId openapi_types.UUID, tripId openapi_types.UUID) (domain.Trip, error)
+	GetTrips(ctx context.Context, diverId openapi_types.UUID) ([]domain.Trip, error)
 }

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/google/uuid"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/service/adapters"
 )
@@ -13,7 +14,32 @@ type driverService struct {
 	r adapters.UserRepository
 }
 
-func (s driverService) Get(ctx context.Context, userId uuid.UUID, tripId uuid.UUID) (domain.Trip, error) {
+func (d driverService) GetTripByID(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID) (domain.Trip, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (d driverService) AcceptTrip(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID) (domain.Trip, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (d driverService) CancelTrip(ctx context.Context, diverId uuid.UUID, tripId openapi_types.UUID, reason *string) (domain.Trip, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (d driverService) StartTrip(ctx context.Context, diverId openapi_types.UUID, tripId openapi_types.UUID) (domain.Trip, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (d driverService) EndTrip(ctx context.Context, diverId openapi_types.UUID, tripId openapi_types.UUID) (domain.Trip, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (d driverService) GetTrips(ctx context.Context, diverId openapi_types.UUID) ([]domain.Trip, error) {
 	//TODO implement me
 	panic("implement me")
 }

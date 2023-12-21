@@ -6,6 +6,7 @@ import (
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/handler/generated"
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/handler/http/models"
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/service/adapters"
+	global "go.opentelemetry.io/otel"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -23,17 +24,30 @@ func NewDriverHandler(logger *zap.Logger, driverService adapters.DriverService) 
 	return &DriverHandler{logger: logger, driverService: driverService}
 }
 
-// TODO Add otel and logger
+// TODO websocket
 // GetTrips long pull получает в ответ список доступных (DRIVE_SEARCH) поездок
 func (h *DriverHandler) GetTrips(c *gin.Context, params generated.GetTripsParams) {
-	//TODO implement me
-	panic("implement me")
+	tr := global.Tracer("gitlab/ArtemFed/mts-final-taxi")
+	newCtx, span := tr.Start(c, "http: GetTripByID")
+	defer span.End()
+
+	trips, err := h.driverService.GetTrips(newCtx, params.UserId)
+	if err != nil {
+		NewErrorResponse(c, h.logger, MapErrorToCode(c, err), err.Error())
+		return
+	}
+	resp := models.ToTripsResponse(trips)
+
+	c.JSON(http.StatusOK, resp)
 }
 
 func (h *DriverHandler) GetTripByID(c *gin.Context, tripId openapi_types.UUID, params generated.GetTripByIDParams) {
-	//tools.ParseUUIDFromParam(c, h.logger, id_param)
-	trip, err := h.driverService.Get(c, params.UserId, tripId)
+	tr := global.Tracer("gitlab/ArtemFed/mts-final-taxi")
+	newCtx, span := tr.Start(c, "http: GetTripByID")
+	defer span.End()
+	//c = zapctx.WithLogger(newCtx, h.logger)
 
+	trip, err := h.driverService.GetTripByID(newCtx, params.UserId, tripId)
 	if err != nil {
 		NewErrorResponse(c, h.logger, MapErrorToCode(c, err), err.Error())
 		return
@@ -44,53 +58,57 @@ func (h *DriverHandler) GetTripByID(c *gin.Context, tripId openapi_types.UUID, p
 }
 
 func (h *DriverHandler) AcceptTrip(c *gin.Context, tripId openapi_types.UUID, params generated.AcceptTripParams) {
-	//TODO implement me
-	panic("implement me")
+	tr := global.Tracer("gitlab/ArtemFed/mts-final-taxi")
+	newCtx, span := tr.Start(c, "http: AcceptTrip")
+	defer span.End()
+
+	_, err := h.driverService.AcceptTrip(newCtx, params.UserId, tripId)
+	if err != nil {
+		NewErrorResponse(c, h.logger, MapErrorToCode(c, err), err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, http.NoBody)
 }
 
 func (h *DriverHandler) CancelTrip(c *gin.Context, tripId openapi_types.UUID, params generated.CancelTripParams) {
-	//TODO implement me
-	panic("implement me")
+	tr := global.Tracer("gitlab/ArtemFed/mts-final-taxi")
+	newCtx, span := tr.Start(c, "http: CancelTrip")
+	defer span.End()
+
+	_, err := h.driverService.CancelTrip(newCtx, params.UserId, tripId, params.Reason)
+	if err != nil {
+		NewErrorResponse(c, h.logger, MapErrorToCode(c, err), err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, http.NoBody)
 }
 
 func (h *DriverHandler) EndTrip(c *gin.Context, tripId openapi_types.UUID, params generated.EndTripParams) {
-	//TODO implement me
-	panic("implement me")
+	tr := global.Tracer("gitlab/ArtemFed/mts-final-taxi")
+	newCtx, span := tr.Start(c, "http: EndTrip")
+	defer span.End()
+
+	_, err := h.driverService.EndTrip(newCtx, params.UserId, tripId)
+	if err != nil {
+		NewErrorResponse(c, h.logger, MapErrorToCode(c, err), err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, http.NoBody)
 }
 
 func (h *DriverHandler) StartTrip(c *gin.Context, tripId openapi_types.UUID, params generated.StartTripParams) {
-	//TODO implement me
-	panic("implement me")
-}
+	tr := global.Tracer("gitlab/ArtemFed/mts-final-taxi")
+	newCtx, span := tr.Start(c, "http: StartTrip")
+	defer span.End()
 
-//func (h *DriverAPI) CreateUser(c *gin.Context) {
-//	req := models.UserCreateRequest{}
-//	if !restapi.BindRequestBody(c, &req) {
-//		return
-//	}
-//
-//	res, err := h.s.Create(c, domain.User{
-//		Name: req.Name,
-//	})
-//
-//	if err != nil {
-//		restapi.NewErrorResponse(c, restapi.MapErrorToCode(c, err), err.Error())
-//		return
-//	}
-//	c.JSON(http.StatusOK, models.UserResponse{Id: res.Id, Name: res.Name, Balance: res.Balance})
-//}
-//
-//func (h *DriverAPI) GetUser(c *gin.Context) {
-//	// parse from "/get-user/:id"
-//	h.mylogger.Info(c.Param("id"))
-//	id, ok := restapi.ParseUUIDFromParam(c)
-//	if !ok {
-//		return
-//	}
-//	user, err := h.s.Get(c, id)
-//	if err != nil {
-//		restapi.NewErrorResponse(c, restapi.MapErrorToCode(c, err), err.Error())
-//		return
-//	}
-//	c.JSON(http.StatusOK, models.MakeUserResponse(user))
-//}
+	_, err := h.driverService.StartTrip(newCtx, params.UserId, tripId)
+	if err != nil {
+		NewErrorResponse(c, h.logger, MapErrorToCode(c, err), err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, http.NoBody)
+}
