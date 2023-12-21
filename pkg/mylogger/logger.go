@@ -1,4 +1,4 @@
-package app
+package mylogger
 
 import (
 	"github.com/TheZeroSlave/zapsentry"
@@ -6,7 +6,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func initLogger(debug bool, sentryDSN string, env string) (*zap.Logger, error) {
+func InitLogger(debug bool, sentryDSN string, env string) (*zap.Logger, error) {
 	var err error
 	var l *zap.Logger
 

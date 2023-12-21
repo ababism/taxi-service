@@ -1,0 +1,9 @@
+[
+  {
+    "dropIndexes": "driver",
+    "index": "trip_unique"
+  },
+  {
+    "dropCollections": "driver"
+  }
+]

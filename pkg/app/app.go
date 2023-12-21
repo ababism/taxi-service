@@ -21,7 +21,7 @@ func InitInfo(buildVersion string) *Info {
 	info.Version = buildVersion
 	// TODO Ставим флаги
 	//config.StringVar(&info.Name, "app.name", "unknown app", "description")
-	//config.StringVar(&info.Environment, "app.env", "local", "description")
+	//config.StringVar(&info.Environment, ".env", "local", "description")
 	//config.StringVar(&info.Owner, "app.owner", "unknown", "description")
 	//config.StringVar(&info.Process, "app.process", "*", "comma separated processes to run. http/rpc/*...")
 
@@ -32,17 +32,17 @@ func (i *Info) Release() string {
 	return fmt.Sprintf("%s-%s", i.Environment, i.Version)
 }
 
-// IsProduction defines is current app.env a "production"
+// IsProduction defines is current .env a "production"
 func (i *Info) IsProduction() bool {
 	return i.Environment == production
 }
 
-// IsStaging defines is current app.env a "staging"
+// IsStaging defines is current .env a "staging"
 func (i *Info) IsStaging() bool {
 	return i.Environment == staging
 }
 
-// IsLocal defines is current app.env a "local"
+// IsLocal defines is current .env a "local"
 func (i *Info) IsLocal() bool {
 	return i.Environment == local
 }

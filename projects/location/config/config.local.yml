@@ -30,11 +30,3 @@ postgres:
   password: "password"
   db-name: "postgres"
   ssl-mode: "disable"
-
-mongo:
-  database: driver
-  uri: "mongodb://localhost:27017,localhost:27018,localhost:27019/demo?replicaSet=rs0&authSource=admin&readPreference=primaryPreferred"
-migrations_mongo:
-  uri: "mongodb://localhost:27017,localhost:27018,localhost:27019/demo?replicaSet=rs0&authSource=admin&readPreference=primaryPreferred"
-  path: "./projects/driver/migrations"
-  enabled: true
