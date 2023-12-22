@@ -20,8 +20,10 @@ RUN go build -o location-svc ./projects/location/cmd/server
 #RUN apt-get -y install postgresql-client
 
 FROM alpine:latest as production
+
 COPY --from=build /app/location-svc ./
 #COPY --from=build /app/.env ./
+COPY --from=build /app/projects/location/migrations ./migrations
 COPY --from=build /app/projects/location/config/config.docker.yml ./config/config.local.yml
 
 CMD ["./location-svc"]

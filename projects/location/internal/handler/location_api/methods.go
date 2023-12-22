@@ -1,37 +1,29 @@
-package driver_api
+package location_api
 
 import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/handler/http/models"
+	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/domain"
+	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/handler/models"
 	"go.uber.org/zap"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
 )
 
 // TODO maybe c.AbortWithStatusJSON ?
-func NewErrorResponse(c *gin.Context, logger *zap.Logger, statusCode int, message string) {
-	logger.Info(fmt.Sprintf("%s: %d %s", c.Request.URL, statusCode, message))
+func NewErrorResponse(c *gin.Context, l *zap.Logger, statusCode int, message string) {
+	l.Info(fmt.Sprintf("%s: %d %s", c.Request.URL, statusCode, message))
 	c.AbortWithStatusJSON(statusCode, models.Error{Message: message})
 }
-
-//func BindRequestBody(c *gin.Context, logger *zap.Logger, obj any) bool {
-//	if err := c.BindJSON(obj); err != nil {
-//		NewErrorResponse(c, logger, http.StatusBadRequest, domain.ErrIncorrectBody.Error())
-//		return false
-//	}
-//	return true
-//}
 
 //func ErrorResponse(c *gin.Context, statusCode int, err error) {
 //	logrus.Infof("%s: %d %s", c.Request.URL, statusCode, err.Error())
 //	c.AbortWithStatusJSON(statusCode, models.Error{Message: err.Error()})
 //}
 
-func MapErrorToCode(c *gin.Context, err error) int {
+func MapErrorToCode(err error) int {
 	switch {
 	case errors.Is(err, domain.ErrInternal):
 		return http.StatusInternalServerError
@@ -57,7 +49,7 @@ func ParseUUIDFromParam(c *gin.Context, l *zap.Logger, key string) (uuid.UUID, b
 	id := c.Param(key)
 	itemUUID, err := uuid.Parse(id)
 	if err != nil {
-		NewErrorResponse(c, l, MapErrorToCode(c, domain.ErrBadUUID), domain.ErrBadUUID.Error())
+		NewErrorResponse(c, l, MapErrorToCode(domain.ErrBadUUID), domain.ErrBadUUID.Error())
 		return uuid.Nil, false
 	}
 	return itemUUID, true

@@ -1,14 +1,14 @@
 apiVersion: "1.0.0"
 
 app:
-  name: "driver"
+  name: "location"
   env: "local"
 
 logger:
   level: "trace"
   encoding: "console"
 
-sentry:
+metrics:
   enable: false
   dsn: "<sentry_dsn_for_service>"
 
@@ -18,23 +18,16 @@ graceful_shutdown:
   callback_timeout: "2s"
 
 http:
-  host: "localhost"
-  port: 8080
+  host: "0.0.0.0"
+  port: 9090
   read_timeout: "1s"
   write_timeout: "1s"
 
 postgres:
-  host: "localhost"
-  port: "5444"
+  host: "location_db"
+  port: 5432
   username: "postgres"
   password: "password"
-  db-name: "postgres"
+  db-name: "location_db"
   ssl-mode: "disable"
-
-mongo:
-  database: driver
-  uri: "mongodb://localhost:27017,localhost:27018,localhost:27019/demo?replicaSet=rs0&authSource=admin&readPreference=primaryPreferred"
-migrations:
-  uri: "mongodb://localhost:27017,localhost:27018,localhost:27019/demo?replicaSet=rs0&authSource=admin&readPreference=primaryPreferred"
-  path: "migrations"
-  enabled: true
+  migration: "migrations"

@@ -3,15 +3,10 @@ package app
 import (
 	"context"
 	"fmt"
-	ginzap "github.com/gin-contrib/zap"
 	"gitlab/ArtemFed/mts-final-taxi/pkg/graceful_shutdown"
 	httpServer "gitlab/ArtemFed/mts-final-taxi/pkg/http_server"
-	"gitlab/ArtemFed/mts-final-taxi/pkg/metrics"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/handler/generated"
-	myHttp "gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/handler/http"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
-	"go.opentelemetry.io/otel/sdk/trace"
-	"time"
+	myHttp "gitlab/ArtemFed/mts-final-taxi/projects/location/internal/handler"
+	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/handler/generated"
 )
 
 // Start - Единая точка запуска приложения
@@ -20,7 +15,7 @@ func (a *App) Start(ctx context.Context) {
 	go a.startHTTPServer(ctx)
 
 	if err := graceful_shutdown.Wait(a.cfg.GracefulShutdown); err != nil {
-		a.logger.Error(fmt.Sprintf("Failed to gracefully shutdown %s app: %s", a.cfg.App.Name, err.Error()))
+		a.logger.Error(fmt.Sprintf("Failed to gracefully shutdown app: %s", err.Error()))
 	} else {
 		a.logger.Info("App gracefully stopped")
 	}
@@ -31,16 +26,16 @@ func (a *App) startHTTPServer(ctx context.Context) {
 	router := httpServer.NewRouter()
 
 	// Добавляем системные роуты
-	router.WithHandleGET("/metrics", metrics.HandleFunc())
+	//router.WithHandleGET("/metrics", metrics.HandleFunc())
 
-	tp := trace.NewTracerProvider()
+	//tp := trace.NewTracerProvider()
 
 	// TODO Add tracer shutdown
-	middlewareTracer := generated.MiddlewareFunc(otelgin.Middleware(a.cfg.App.Name, otelgin.WithTracerProvider(tp)))
-	middlewareGinZap := generated.MiddlewareFunc(ginzap.Ginzap(a.logger, time.RFC3339, true))
+	//middlewareTracer := generated.MiddlewareFunc(otelgin.Middleware(a.cfg.App.Name, otelgin.WithTracerProvider(tp)))
+	//middlewareGinZap := generated.MiddlewareFunc(ginzap.Ginzap(a.logger, time.RFC3339, true))
 	middlewares := []generated.MiddlewareFunc{
-		middlewareTracer,
-		middlewareGinZap,
+		//middlewareTracer,
+		//middlewareGinZap,
 	}
 
 	// Добавляем роуты api

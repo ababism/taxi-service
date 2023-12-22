@@ -1,16 +1,43 @@
 package main
 
 import (
-	"gitlab/ArtemFed/mts-final-taxi/pkg/mylogger"
+	"context"
+	"fmt"
+	"github.com/joho/godotenv"
+	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/app"
+	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/config"
+	"log"
+	"os"
 )
 
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Print("No .env file found")
+	}
+}
+
 func main() {
-	sentry_dsn := ""
-	logger, err := mylogger.InitLogger(false, sentry_dsn, "production")
+	//gin.SetMode(gin.ReleaseMode)
+	ctx := context.Background()
+
+	configPath := os.Getenv("CONFIG")
+	if configPath == "" {
+		configPath = "config/config.local.yml"
+	}
+	log.Println("Location config path: ", configPath)
+	// Собираем конфиг приложения
+	cfg, err := config.NewConfig(configPath)
 	if err != nil {
-		logger.Fatal("error")
-		return
+		log.Fatal("Fail to parse Location config: ", err)
 	}
 
-	logger.Info("location service: hello world")
+	// Создаем наше приложение
+	application, err := app.NewApp(cfg)
+	if err != nil {
+		log.Fatal(fmt.Sprintf("Fail to create %s app: %s", cfg.App.Name, err))
+	}
+
+	// Запускаем приложение
+	// По конфигам приложение само поймет, что нужно поднять
+	application.Start(ctx)
 }
