@@ -7,27 +7,16 @@ import (
 	"gitlab/ArtemFed/mts-final-taxi/pkg/graceful_shutdown"
 	"gitlab/ArtemFed/mts-final-taxi/pkg/http_server"
 	"gitlab/ArtemFed/mts-final-taxi/pkg/metrics"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/mongo"
+	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/repository/postgres"
 	"log"
 )
 
 type Config struct {
 	App              *app.Config               `mapstructure:"app"`
 	Http             *http_server.Config       `mapstructure:"http"`
-	Postgres         *Postgres                 `mapstructure:"postgres"`
-	Mongo            *mongo.Config             `mapstructure:"mongo"`
-	MigrationsMongo  *mongo.ConfigMigrations   `mapstructure:"migrations_mongo"`
+	Postgres         *postgres.Config          `mapstructure:"postgres"`
 	Metrics          *metrics.Config           `mapstructure:"metrics"`
 	GracefulShutdown *graceful_shutdown.Config `mapstructure:"graceful_shutdown"`
-}
-
-type Postgres struct {
-	Host     string `mapstructure:"host"`
-	Port     string `mapstructure:"port"`
-	Username string `mapstructure:"username"`
-	DBName   string `mapstructure:"db-name"`
-	Password string `mapstructure:"password"`
-	SSLMode  string `mapstructure:"ssl-mode"`
 }
 
 func NewConfig(filePath string) (*Config, error) {

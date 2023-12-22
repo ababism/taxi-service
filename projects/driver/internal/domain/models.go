@@ -2,7 +2,7 @@ package domain
 
 import (
 	"github.com/google/uuid"
-	openapi_types "github.com/oapi-codegen/runtime/types"
+	openapitypes "github.com/oapi-codegen/runtime/types"
 )
 
 type User struct {
@@ -35,7 +35,7 @@ type Trip struct {
 
 	// From An object describing a specific location with Latitude and Longitude in decimal degrees.
 	From   *LatLngLiteral
-	Id     *openapi_types.UUID
+	Id     *openapitypes.UUID
 	Price  *Money
 	Status *TripStatus
 

@@ -35,7 +35,7 @@ func (s *Server) Start() error {
 	if s.srv.Handler == nil {
 		return errors.Errorf("no routes have registered")
 	}
-
+	fmt.Println("addr ", s.srv.Addr)
 	if err := s.srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}

@@ -22,7 +22,7 @@ services:
     healthcheck:
       test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo1:27017',priority:1},{_id:1,host:'mongo2:27018',priority:0.5},{_id:2,host:'mongo3:27019',priority:0.5}]}) }" | mongosh --port 27017 --quiet
       interval: 5s
-      timeout: 20s
+      timeout: 30s
       start_period: 0s
       retries: 30
     volumes:
@@ -55,31 +55,34 @@ services:
       context: './'
       dockerfile: 'location.Dockerfile'
     ports:
-      - "8084:8084"
+      - "9090:9090"
     depends_on:
       location_db:
         condition: service_healthy
     environment:
+      - LOGGER_LEVEL=release
       - DB_PASSWORD=password
 
   location_db:
-    container_name: mts_location_db
     restart: always
     image: postgres:latest
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: "mts_location_db"
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "password"
+      - POSTGRES_DB=location_db
+      - POSTGRES_HOST=location_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    # -U postgres -d postgres = -U {db user} -d {db name}
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres" ]
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d location_db" ]
       interval: 5s
       timeout: 10s
       retries: 5
-#    command: ["bash", "-c", "pg_isready -U postgres -d postgres && psql -U postgres -d postgres -f /location-svc/schema/000001_init.up.sql"]
-#    volumes:
-#      - ./.database/postgres/location_data:/var/lib/postgresql/data
+  #    command: ["bash", "-c", "pg_isready -U postgres -d postgres && psql -U postgres -d postgres -f /location-svc/migrations/000001_init.up.sql"]
+  #    volumes:
+  #      - ./.database/postgres/location_data:/var/lib/postgresql/data
+
 networks:
   host:
 
