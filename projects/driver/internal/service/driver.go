@@ -3,95 +3,177 @@ package service
 import (
 	"context"
 	"github.com/google/uuid"
-	openapi_types "github.com/oapi-codegen/runtime/types"
+	"github.com/juju/zaputil/zapctx"
+	"github.com/pkg/errors"
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/service/adapters"
+	global "go.opentelemetry.io/otel"
 )
 
 var _ adapters.DriverService = driverService{}
 
 type driverService struct {
-	r adapters.UserRepository
+	r              adapters.DriverRepository
+	locationClient adapters.LocationClient
+	tripStatuses   domain.TripStatusCollection
 }
 
-func (d driverService) GetTripByID(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID) (domain.Trip, error) {
-	//TODO implement me
-	panic("implement me")
+func (s driverService) GetTripByID(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID) (*domain.Trip, error) {
+	log := zapctx.Logger(ctx)
+
+	tr := global.Tracer(domain.ServiceName)
+	traceCtx, span := tr.Start(ctx, "driver.service: GetTripByID")
+	defer span.End()
+
+	// err if trip driver != nil and driver != driverId
+	trip, err := s.r.GetTripByID(traceCtx, tripId)
+	if err != nil {
+		log.Error("driver-service: get trip from repository")
+		return nil, domain.FilterErrors(err)
+	}
+	if trip.DriverId != nil && *trip.DriverId != driverId.String() {
+		return nil, errors.Wrap(domain.ErrAccessDenied, "trip driver id does not match passed id")
+	}
+	return &trip, err
 }
 
-func (d driverService) AcceptTrip(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID) (domain.Trip, error) {
-	//TODO implement me
-	panic("implement me")
+func (s driverService) AcceptTrip(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID) error {
+	log := zapctx.Logger(ctx)
+
+	tr := global.Tracer(domain.ServiceName)
+	newCtx, span := tr.Start(ctx, "driver.service: AcceptTrip")
+	defer span.End()
+
+	ctx = zapctx.WithLogger(newCtx, log)
+
+	trip, err := s.r.GetTripByID(newCtx, tripId)
+	if err != nil {
+		log.Error("can't get trip from repository")
+		return domain.FilterErrors(err)
+	}
+	if trip.Status == nil || *trip.Status != s.tripStatuses.GetDriverSearch() {
+		return errors.Wrap(domain.ErrAccessDenied, "trip doesn't need driver")
+	}
+	// TODO Kafka <- acceptTrip
+
+	return nil
 }
 
-func (d driverService) CancelTrip(ctx context.Context, diverId uuid.UUID, tripId openapi_types.UUID, reason *string) (domain.Trip, error) {
-	//TODO implement me
-	panic("implement me")
+func (s driverService) CancelTrip(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID, reason *string) error {
+	log := zapctx.Logger(ctx)
+
+	tr := global.Tracer(domain.ServiceName)
+	newCtx, span := tr.Start(ctx, "driver.service: CancelTrip")
+	defer span.End()
+
+	ctx = zapctx.WithLogger(newCtx, log)
+
+	trip, err := s.r.GetTripByID(newCtx, tripId)
+	if err != nil {
+		log.Error("can't get trip from repository")
+		return domain.FilterErrors(err)
+	}
+	if trip.Status == nil || *trip.Status == s.tripStatuses.GetDriverSearch() {
+		return errors.Wrap(domain.ErrAccessDenied, "trip hasn't connected with driver yet")
+	}
+	if trip.DriverId != nil && *trip.DriverId != driverId.String() {
+		return errors.Wrap(domain.ErrAccessDenied, "trip driver id does not match passed id")
+	}
+	// TODO Kafka <- cancel (with Reason)
+
+	return nil
 }
 
-func (d driverService) StartTrip(ctx context.Context, diverId openapi_types.UUID, tripId openapi_types.UUID) (domain.Trip, error) {
-	//TODO implement me
-	panic("implement me")
+func (s driverService) StartTrip(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID) error {
+	log := zapctx.Logger(ctx)
+
+	tr := global.Tracer(domain.ServiceName)
+	newCtx, span := tr.Start(ctx, "driver.service: StartTrip")
+	defer span.End()
+
+	ctx = zapctx.WithLogger(newCtx, log)
+
+	trip, err := s.r.GetTripByID(newCtx, tripId)
+	if err != nil {
+		log.Error("can't get trip from repository")
+		return domain.FilterErrors(err)
+	}
+	// TODO ask about *trip.Status != s.tripStatuses.GetOnPosition()
+	if trip.Status == nil || *trip.Status != s.tripStatuses.GetOnPosition() || *trip.Status != s.tripStatuses.GetDriverFound() {
+		return errors.Wrap(domain.ErrAccessDenied, "trip hasn't connected with driver yet")
+	}
+	if trip.DriverId != nil && *trip.DriverId != driverId.String() {
+		return errors.Wrap(domain.ErrAccessDenied, "trip driver id does not match passed id")
+	}
+
+	// TODO Kafka <- start trip
+
+	return nil
 }
 
-func (d driverService) EndTrip(ctx context.Context, diverId openapi_types.UUID, tripId openapi_types.UUID) (domain.Trip, error) {
-	//TODO implement me
-	panic("implement me")
+func (s driverService) EndTrip(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID) error {
+	log := zapctx.Logger(ctx)
+
+	tr := global.Tracer(domain.ServiceName)
+	newCtx, span := tr.Start(ctx, "driver.service: EndTrip")
+	defer span.End()
+
+	ctx = zapctx.WithLogger(newCtx, log)
+
+	trip, err := s.r.GetTripByID(newCtx, tripId)
+	if err != nil {
+		log.Error("can't get trip from repository")
+		return domain.FilterErrors(err)
+	}
+	// TODO ask about *trip.Status != s.tripStatuses.GetOnPosition()
+	if trip.Status == nil || *trip.Status != s.tripStatuses.GetOnPosition() {
+		return errors.Wrap(domain.ErrAccessDenied, "trip hasn't connected with driver yet")
+	}
+	if trip.DriverId != nil && *trip.DriverId != driverId.String() {
+		return errors.Wrap(domain.ErrAccessDenied, "trip driver id does not match passed id")
+	}
+	// TODO Kafka <- End trip
+
+	return nil
 }
 
-func (d driverService) GetTrips(ctx context.Context, diverId openapi_types.UUID) ([]domain.Trip, error) {
-	//TODO implement me
-	panic("implement me")
+// Long poll
+func (s driverService) GetTrips(ctx context.Context, driverId uuid.UUID) ([]domain.Trip, error) {
+	log := zapctx.Logger(ctx)
+
+	tr := global.Tracer(domain.ServiceName)
+	newCtx, span := tr.Start(ctx, "driver.service: GetTrips")
+	defer span.End()
+
+	ctx = zapctx.WithLogger(newCtx, log)
+
+	trips := make([]domain.Trip, 0)
+	// fot loop for 5-10 seconds with timeout:
+	//
+	// 		span.AddEvent("Message from Kafka")
+	//		TripCreated <- Kafka
+	//		drivers := s.locationClient.GetDrivers(TripCreated.userLocation, radius)
+	//      for range drivers {
+	//			if dr.id == id {
+	//					trips = trips.append(TripCreated)
+	//			{
+	//      {
+	//
+
+	// TODO DELETE?
+	//trips, err := s.locationClient.GetDrivers(newCtx, driverId)
+	//if err != nil {
+	//	log.Error("driver-service: EndTrip")
+	//	return nil, domain.FilterErrors(err)
+	//}
+
+	return trips, nil
 }
 
-//func (s driverService) Get(ctx context.Context, id uuid.UUID) (domain.User, error) {
-//	user, err := s.r.Get(ctx, id)
-//	if err != nil {
-//		return domain.User{}, domain.FilterErrors(err)
-//	}
-//	return user, nil
-//}
-//func (s driverService) Create(ctx context.Context, u domain.User) (domain.User, error) {
-//	if len(u.Name) > 30 || len(u.Name) < 1 {
-//		return domain.User{}, domain.ErrIncorrectBody
-//	}
-//	newUser, err := s.r.Create(ctx, u)
-//	if err != nil {
-//		return domain.User{}, domain.FilterErrors(err)
-//	}
-//	return newUser, nil
-//}
-//
-//func (s driverService) GetBalance(ctx context.Context, userID uuid.UUID) (float64, error) {
-//	user, err := s.r.Get(ctx, userID)
-//	if err != nil {
-//		return 0, domain.FilterErrors(err)
-//	}
-//	return user.Balance, nil
-//}
-//
-//func (s driverService) AddToBalance(ctx context.Context, userID uuid.UUID, amount float64) (float64, error) {
-//	newBalance, err := s.r.AddToBalance(ctx, userID, amount)
-//	if err != nil {
-//		return 0, domain.FilterErrors(err)
-//	}
-//	return newBalance, nil
-//}
-//
-//func (s driverService) TransferCurrency(ctx context.Context, senderID uuid.UUID, receiverID uuid.UUID, amount float64) (newSenderBalance float64, err error) {
-//	if amount < 0 {
-//		return 0, domain.ErrIncorrectBody
-//	}
-//	if senderID == receiverID {
-//		return 0, domain.ErrAccessDenied
-//	}
-//	newBalance, err := s.r.TransferCurrency(ctx, senderID, receiverID, amount)
-//	if err != nil {
-//		return 0, domain.FilterErrors(err)
-//	}
-//	return newBalance, nil
-//}
-
-func NewDriverService(ur adapters.UserRepository) adapters.DriverService {
-	return &driverService{r: ur}
+func NewDriverService(driverRepository adapters.DriverRepository, locationClient adapters.LocationClient, tsc domain.TripStatusCollection) adapters.DriverService {
+	return &driverService{
+		r:              driverRepository,
+		locationClient: locationClient,
+		tripStatuses:   tsc,
+	}
 }

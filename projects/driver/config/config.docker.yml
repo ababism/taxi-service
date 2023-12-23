@@ -18,18 +18,13 @@ graceful_shutdown:
   callback_timeout: "2s"
 
 http:
-  host: "localhost"
+  host: "0.0.0.0"
   port: 8080
   read_timeout: "1s"
   write_timeout: "1s"
 
-postgres:
-  host: "location_db"
-  port: "5432"
-  username: "postgres"
-  password: "password"
-  db-name: "mts_location_db"
-  ssl-mode: "disable"
+location_client:
+  uri: "http://location-svc:9090"
 
 mongo:
   database: driver

@@ -11,6 +11,10 @@ services:
     depends_on:
       mongo1:
         condition: service_healthy
+      mongo2:
+        condition: service_started
+      mongo3:
+        condition: service_started
     environment:
       - DB_PASSWORD=password
 
