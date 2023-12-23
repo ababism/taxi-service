@@ -2,6 +2,7 @@ package http
 
 import (
 	"fmt"
+	"gitlab/ArtemFed/mts-final-taxi/pkg/app"
 	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/config"
 	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/handler/generated"
 	locationAPI "gitlab/ArtemFed/mts-final-taxi/projects/location/internal/handler/location_api"
@@ -34,8 +35,9 @@ func InitHandler(
 	logger *zap.Logger,
 	middlewares []generated.MiddlewareFunc,
 	locationService adapters.LocationService,
+	appCfg *app.Config,
 ) {
-	locationHandler := locationAPI.NewLocationHandler(logger, locationService)
+	locationHandler := locationAPI.NewLocationHandler(logger, locationService, appCfg)
 
 	ginOpts := generated.GinServerOptions{
 		BaseURL:      fmt.Sprintf("%s/%s", httpPrefix, getVersion()),

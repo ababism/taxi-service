@@ -19,7 +19,7 @@ func init() {
 func main() {
 	ctx := context.Background()
 
-	configPath := os.Getenv("CONFIG")
+	configPath := os.Getenv("CONFIG_DRIVER")
 	if configPath == "" {
 		configPath = "config/config.local.yml"
 	}

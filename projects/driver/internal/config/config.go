@@ -7,6 +7,7 @@ import (
 	"gitlab/ArtemFed/mts-final-taxi/pkg/graceful_shutdown"
 	"gitlab/ArtemFed/mts-final-taxi/pkg/http_server"
 	"gitlab/ArtemFed/mts-final-taxi/pkg/metrics"
+	"gitlab/ArtemFed/mts-final-taxi/pkg/mylogger"
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/location_client"
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/mongo"
 	"log"
@@ -16,6 +17,7 @@ type Config struct {
 	App              *app.Config                   `mapstructure:"app"`
 	Http             *http_server.Config           `mapstructure:"http"`
 	LocationClient   *location_client.ClientConfig `mapstructure:"location_client"`
+	Logger           *mylogger.Config              `mapstructure:"logger"`
 	Mongo            *mongo.Config                 `mapstructure:"mongo"`
 	MigrationsMongo  *mongo.ConfigMigrations       `mapstructure:"migrations_mongo"`
 	Metrics          *metrics.Config               `mapstructure:"metrics"`

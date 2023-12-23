@@ -1,3 +1,6 @@
+CREATE EXTENSION cube;
+CREATE EXTENSION earthdistance;
+
 CREATE TABLE drivers_locations
 (
     id  UUID,

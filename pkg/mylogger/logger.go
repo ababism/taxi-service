@@ -4,46 +4,60 @@ import (
 	"github.com/TheZeroSlave/zapsentry"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"log"
 )
 
-func InitLogger(debug bool, sentryDSN string, env string) (*zap.Logger, error) {
-	var err error
-	var l *zap.Logger
+const (
+	envDebug      = "dev"
+	envProduction = "prod"
+)
 
-	if debug {
-		l, err = zap.NewDevelopment()
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		l, err = zap.NewProduction()
-		if err != nil {
-			return nil, err
-		}
+func InitLogger(cfg *Config, appName string) (*zap.Logger, error) {
+	var levelZap, levelSentry zapcore.Level
+	err := levelZap.UnmarshalText([]byte(cfg.LevelLogger))
+	if err != nil {
+		log.Printf("Zap logs level with value=%s not initiolized", levelZap)
+		return nil, err
 	}
 
-	cfg := zapsentry.Configuration{
-		Level: zapcore.ErrorLevel,
+	var cfgZap zap.Config
+	if cfg.Env == envDebug {
+		cfgZap = zap.NewDevelopmentConfig()
+	} else {
+		cfgZap = zap.NewProductionConfig()
+	}
+	cfgZap.Level = zap.NewAtomicLevelAt(levelZap)
+	cfgZap.OutputPaths = cfg.OutputPaths
+	cfgZap.ErrorOutputPaths = cfg.ErrorOutputPaths
+
+	logger, err := cfgZap.Build()
+	if err != nil {
+		log.Println("Zap logger build failed")
+		return nil, err
+	}
+
+	err = levelSentry.UnmarshalText([]byte(cfg.LevelSentry))
+	if err != nil {
+		log.Printf("Sentry logs level with value=%s not initiolized", levelZap)
+		return nil, err
+	}
+	cfgSentry := zapsentry.Configuration{
+		Level: levelSentry,
 		Tags: map[string]string{
-			"environment": env,
-			"app":         "demoApp",
+			"environment": cfg.Env,
+			"app":         appName,
 		},
 	}
-	core, err := zapsentry.NewCore(cfg, zapsentry.NewSentryClientFromDSN(sentryDSN))
+	core, err := zapsentry.NewCore(
+		cfgSentry,
+		zapsentry.NewSentryClientFromDSN(cfg.SentryDSN),
+	)
 	if err != nil {
+		log.Println("Zapsentry NewCore not initiolized")
 		return nil, err
 	}
 
-	l = zapsentry.AttachCoreToLogger(core, l)
-	defer func() {
-		_ = l.Sync()
-	}()
+	logger = zapsentry.AttachCoreToLogger(core, logger)
 
-	if err != nil {
-		return nil, err
-	}
-
-	l.Info("Init Logger – success")
-
-	return l, nil
+	return logger, nil
 }

@@ -73,10 +73,10 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_DB=location_db
-      - POSTGRES_HOST=location_db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_HOST=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     # -U postgres -d postgres = -U {db user} -d {db name}
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres -d location_db" ]

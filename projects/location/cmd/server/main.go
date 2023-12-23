@@ -20,7 +20,7 @@ func main() {
 	//gin.SetMode(gin.ReleaseMode)
 	ctx := context.Background()
 
-	configPath := os.Getenv("CONFIG")
+	configPath := os.Getenv("CONFIG_LOCATION")
 	if configPath == "" {
 		configPath = "config/config.local.yml"
 	}
