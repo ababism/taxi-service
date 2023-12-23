@@ -3,25 +3,42 @@ package location_api
 import (
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
+	"github.com/gin-gonic/gin"
 	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/domain"
 	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/handler/models"
 	"go.uber.org/zap"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
 
-// TODO maybe c.AbortWithStatusJSON ?
-func NewErrorResponse(c *gin.Context, l *zap.Logger, statusCode int, message string) {
-	l.Info(fmt.Sprintf("%s: %d %s", c.Request.URL, statusCode, message))
-	c.AbortWithStatusJSON(statusCode, models.Error{Message: message})
+func abortWithErrorResponse(ctx *gin.Context, logger *zap.Logger, statusCode int, message string) {
+	logger.Error(fmt.Sprintf("%s: %d %s", ctx.Request.URL, statusCode, message))
+	ctx.AbortWithStatusJSON(statusCode, models.Error{Message: message})
 }
 
-//func ErrorResponse(c *gin.Context, statusCode int, err error) {
-//	logrus.Infof("%s: %d %s", c.Request.URL, statusCode, err.Error())
-//	c.AbortWithStatusJSON(statusCode, models.Error{Message: err.Error()})
-//}
+func abortWithBadResponse(ctx *gin.Context, logger *zap.Logger, statusCode int, message string) {
+	logger.Debug(fmt.Sprintf("%s: %d %s", ctx.Request.URL, statusCode, message))
+	ctx.AbortWithStatusJSON(statusCode, models.Error{Message: message})
+}
+
+func answerWithGoodResponse(ctx *gin.Context, logger *zap.Logger, statusCode int, resp interface{}) {
+	logger.Debug(fmt.Sprintf("%s: %d %v", ctx.Request.URL, statusCode, resp))
+	ctx.AbortWithStatusJSON(statusCode, resp)
+}
+
+func CallAbortByErrorCode(ctx *gin.Context, logger *zap.Logger, statusCode int, resp interface{}) {
+	errorType := statusCode / 100 % 10
+
+	switch errorType {
+	case 1, 2, 3:
+		answerWithGoodResponse(ctx, logger, statusCode, resp)
+	case 4:
+		abortWithBadResponse(ctx, logger, statusCode, fmt.Sprintf("%s", resp))
+	case 5:
+		abortWithErrorResponse(ctx, logger, statusCode, fmt.Sprintf("%s", resp))
+	default:
+		abortWithErrorResponse(ctx, logger, statusCode, fmt.Sprintf("%v", resp))
+	}
+}
 
 func MapErrorToCode(err error) int {
 	switch {
@@ -29,13 +46,17 @@ func MapErrorToCode(err error) int {
 		return http.StatusInternalServerError
 	case errors.Is(err, domain.ErrNotFound):
 		return http.StatusNotFound
-	case errors.Is(err, domain.ErrIncorrectBody):
-		return http.StatusBadRequest
 	case errors.Is(err, domain.ErrTokenInvalid):
 		return http.StatusUnauthorized
 	case errors.Is(err, domain.ErrAccessDenied):
 		return http.StatusUnauthorized
 	case errors.Is(err, domain.ErrAlreadyExists):
+		return http.StatusBadRequest
+	case errors.Is(err, domain.ErrIncorrectBody):
+		return http.StatusBadRequest
+	case errors.Is(err, domain.ErrBadLatitude):
+		return http.StatusBadRequest
+	case errors.Is(err, domain.ErrBadLongitude):
 		return http.StatusBadRequest
 	case errors.Is(err, domain.ErrBadUUID):
 		return http.StatusForbidden
@@ -43,23 +64,3 @@ func MapErrorToCode(err error) int {
 		return http.StatusInternalServerError
 	}
 }
-
-// ParseUUIDFromParam makes Error response if it couldn't parse token, returns true if everything is ok
-func ParseUUIDFromParam(c *gin.Context, l *zap.Logger, key string) (uuid.UUID, bool) {
-	id := c.Param(key)
-	itemUUID, err := uuid.Parse(id)
-	if err != nil {
-		NewErrorResponse(c, l, MapErrorToCode(domain.ErrBadUUID), domain.ErrBadUUID.Error())
-		return uuid.Nil, false
-	}
-	return itemUUID, true
-}
-
-//func parseUUID(c *gin.Context, id string) (uuid.UUID, bool) {
-//	itemUUID, err := uuid.Parse(id)
-//	if err != nil {
-//		NewErrorResponse(c, MapErrorToCode(c, adapters.ErrBadUUID), adapters.ErrBadUUID.Error())
-//		return uuid.Nil, false
-//	}
-//	return itemUUID, true
-//}

@@ -2,8 +2,7 @@ package service
 
 import (
 	"context"
-	"github.com/juju/zaputil/zapctx"
-	openapitypes "github.com/oapi-codegen/runtime/types"
+	"github.com/google/uuid"
 	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/domain"
 	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/service/adapters"
 	global "go.opentelemetry.io/otel"
@@ -20,33 +19,49 @@ func NewLocationService(ur adapters.LocationRepository) adapters.LocationService
 }
 
 func (s *locationService) GetDrivers(ctx context.Context, lat float32, lng float32, radius float32) ([]domain.Driver, error) {
-	tr := global.Tracer("gitlab/ArtemFed/mts-final-taxi")
-	ctxTrace, span := tr.Start(ctx, "location-service: GetDrivers Service")
+	tr := global.Tracer(domain.TracerName)
+	ctxTrace, span := tr.Start(ctx, "[LocationService-GetDrivers]")
 	defer span.End()
 
-	logger := zapctx.Logger(ctx)
+	err := validateCoordinates(lat, lng)
+	if err != nil {
+		return nil, err
+	}
 
 	drivers, err := s.r.GetDrivers(ctxTrace, lat, lng, radius)
 	if err != nil {
-		logger.Error("location-service: get drivers in radius from repository")
-		return nil, domain.FilterErrors(err)
+		return nil, err
 	}
 
 	return drivers, err
 }
 
-func (s *locationService) UpdateDriverLocation(ctx context.Context, driverId openapitypes.UUID, lat float32, lng float32) error {
-	tr := global.Tracer("gitlab/ArtemFed/mts-final-taxi")
-	ctxTrace, span := tr.Start(ctx, "location-service: UpdateDriverLocation Service")
+func (s *locationService) UpdateDriverLocation(ctx context.Context, driverId uuid.UUID, lat float32, lng float32) error {
+	tr := global.Tracer(domain.TracerName)
+	ctxTrace, span := tr.Start(ctx, "[LocationService-UpdateDriverLocation]")
 	defer span.End()
 
-	logger := zapctx.Logger(ctx)
-
-	err := s.r.UpdateDriverLocation(ctxTrace, driverId, lat, lng)
+	err := validateCoordinates(lat, lng)
 	if err != nil {
-		logger.Error("location-service: update driver location in radius from repository")
-		return domain.FilterErrors(err)
+		return err
+	}
+
+	err = s.r.UpdateDriverLocation(ctxTrace, driverId, lat, lng)
+	if err != nil {
+		return err
 	}
 
 	return err
+}
+
+func validateCoordinates(lat float32, lng float32) error {
+	if lat < -90 || lat > 90 {
+		return domain.ErrBadLatitude
+	}
+
+	if lng < -180 || lng > 180 {
+		return domain.ErrBadLongitude
+	}
+
+	return nil
 }

@@ -2,6 +2,8 @@ package domain
 
 import "github.com/google/uuid"
 
+const TracerName = "mts-final-taxi/location-service"
+
 // Driver defines model for Driver.
 type Driver struct {
 	// Id Идентификатор водителя

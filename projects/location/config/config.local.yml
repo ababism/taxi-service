@@ -5,17 +5,19 @@ app:
   env: "local"
 
 logger:
-  level: "trace"
-  encoding: "console"
+  env: "dev" # "prod"
+  level_logger: "debug"
+  level_sentry: "error"
+  outputs:
+    - "stdout"
+  error_outputs:
+    - "stderr"
+  encoding: "json"
+  sentry_dsn: ""
 
 metrics:
   enable: false
   dsn: "<sentry_dsn_for_service>"
-
-graceful_shutdown:
-  delay: "5s"
-  wait_timeout: "5s"
-  callback_timeout: "2s"
 
 http:
   host: "localhost"
@@ -25,9 +27,14 @@ http:
 
 postgres:
   host: "localhost"
-  port: 5432
+  port: 5444
   username: "postgres"
   password: "password"
   db-name: "postgres"
   ssl-mode: "disable"
   migration: "projects/location/migrations"
+
+graceful_shutdown:
+  delay: "5s"
+  wait_timeout: "5s"
+  callback_timeout: "2s"

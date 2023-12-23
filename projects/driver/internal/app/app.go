@@ -26,20 +26,17 @@ type App struct {
 	logger  *zap.Logger
 
 	service adapters.DriverService
-	//repo    adapters.DriverRepository
 }
 
 func NewApp(cfg *config.Config) (*App, error) {
-	// TODO dsn
-	sentryDsn := ""
-	logger, err := mylogger.InitLogger(false, sentryDsn, "production")
+	logger, err := mylogger.InitLogger(cfg.Logger, cfg.App.Name)
 	if err != nil {
 		return nil, err
 	}
+	logger.Info("Init Logger – success")
 
 	startCtx := context.Background()
 	ctx := zapctx.WithLogger(startCtx, logger)
-	logger.Info(fmt.Sprintf("%v", cfg))
 
 	// Чистим кэш логгера при shutdown
 	graceful_shutdown.AddCallback(

@@ -5,8 +5,15 @@ app:
   env: "local"
 
 logger:
-  level: "trace"
-  encoding: "console"
+  env: "dev" # "prod"
+  level_logger: "debug"
+  level_sentry: "error"
+  outputs:
+    - "stdout"
+  error_outputs:
+    - "stderr"
+  encoding: "json"
+  sentry_dsn: ""
 
 metrics:
   enable: false

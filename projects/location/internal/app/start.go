@@ -39,7 +39,7 @@ func (a *App) startHTTPServer(ctx context.Context) {
 	}
 
 	// Добавляем роуты api
-	myHttp.InitHandler(router.GetRouter(), a.logger, middlewares, a.service)
+	myHttp.InitHandler(router.GetRouter(), a.logger, middlewares, a.service, a.cfg.App)
 
 	// Создаем сервер
 	srv := httpServer.New(a.cfg.Http)
