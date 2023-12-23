@@ -23,13 +23,8 @@ http:
   read_timeout: "1s"
   write_timeout: "1s"
 
-postgres:
-  host: "localhost"
-  port: 5444
-  username: "postgres"
-  password: "password"
-  db-name: "postgres"
-  ssl-mode: "disable"
+location_client:
+  uri: "http://localhost:9090"
 
 mongo:
   database: driver

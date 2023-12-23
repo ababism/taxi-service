@@ -13,14 +13,19 @@ import (
 )
 
 // TODO maybe c.AbortWithStatusJSON ?
-func NewErrorResponse(c *gin.Context, logger *zap.Logger, statusCode int, message string) {
-	logger.Info(fmt.Sprintf("%s: %d %s", c.Request.URL, statusCode, message))
+func AbortWithBadResponse(c *gin.Context, logger *zap.Logger, statusCode int, message string) {
+	logger.Debug(fmt.Sprintf("%s: %d %s", c.Request.URL, statusCode, message))
+	c.AbortWithStatusJSON(statusCode, models.Error{Message: message})
+}
+
+func AbortWithErrorResponse(c *gin.Context, logger *zap.Logger, statusCode int, message string) {
+	logger.Error(fmt.Sprintf("%s: %d %s", c.Request.URL, statusCode, message))
 	c.AbortWithStatusJSON(statusCode, models.Error{Message: message})
 }
 
 //func BindRequestBody(c *gin.Context, logger *zap.Logger, obj any) bool {
 //	if err := c.BindJSON(obj); err != nil {
-//		NewErrorResponse(c, logger, http.StatusBadRequest, domain.ErrIncorrectBody.Error())
+//		AbortWithBadResponse(c, logger, http.StatusBadRequest, domain.ErrIncorrectBody.Error())
 //		return false
 //	}
 //	return true
@@ -31,7 +36,7 @@ func NewErrorResponse(c *gin.Context, logger *zap.Logger, statusCode int, messag
 //	c.AbortWithStatusJSON(statusCode, models.Error{Message: err.Error()})
 //}
 
-func MapErrorToCode(c *gin.Context, err error) int {
+func MapErrorToCode(err error) int {
 	switch {
 	case errors.Is(err, domain.ErrInternal):
 		return http.StatusInternalServerError
@@ -57,7 +62,7 @@ func ParseUUIDFromParam(c *gin.Context, l *zap.Logger, key string) (uuid.UUID, b
 	id := c.Param(key)
 	itemUUID, err := uuid.Parse(id)
 	if err != nil {
-		NewErrorResponse(c, l, MapErrorToCode(c, domain.ErrBadUUID), domain.ErrBadUUID.Error())
+		AbortWithBadResponse(c, l, MapErrorToCode(domain.ErrBadUUID), domain.ErrBadUUID.Error())
 		return uuid.Nil, false
 	}
 	return itemUUID, true
@@ -66,7 +71,7 @@ func ParseUUIDFromParam(c *gin.Context, l *zap.Logger, key string) (uuid.UUID, b
 //func parseUUID(c *gin.Context, id string) (uuid.UUID, bool) {
 //	itemUUID, err := uuid.Parse(id)
 //	if err != nil {
-//		NewErrorResponse(c, MapErrorToCode(c, adapters.ErrBadUUID), adapters.ErrBadUUID.Error())
+//		AbortWithBadResponse(c, MapErrorToCode(c, adapters.ErrBadUUID), adapters.ErrBadUUID.Error())
 //		return uuid.Nil, false
 //	}
 //	return itemUUID, true

@@ -15,6 +15,7 @@ var (
 )
 
 func FilterErrors(err error) error {
+	//TODO check if ISProd()
 	switch {
 	case errors.Is(err, ErrTokenInvalid),
 		errors.Is(err, ErrIncorrectBody),

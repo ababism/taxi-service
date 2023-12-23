@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	ginzap "github.com/gin-contrib/zap"
+	requestid "github.com/sumit-tembe/gin-requestid"
 	"gitlab/ArtemFed/mts-final-taxi/pkg/graceful_shutdown"
 	httpServer "gitlab/ArtemFed/mts-final-taxi/pkg/http_server"
 	"gitlab/ArtemFed/mts-final-taxi/pkg/metrics"
@@ -36,11 +37,13 @@ func (a *App) startHTTPServer(ctx context.Context) {
 	tp := trace.NewTracerProvider()
 
 	// TODO Add tracer shutdown
-	middlewareTracer := generated.MiddlewareFunc(otelgin.Middleware(a.cfg.App.Name, otelgin.WithTracerProvider(tp)))
-	middlewareGinZap := generated.MiddlewareFunc(ginzap.Ginzap(a.logger, time.RFC3339, true))
+	tracerMw := generated.MiddlewareFunc(otelgin.Middleware(a.cfg.App.Name, otelgin.WithTracerProvider(tp)))
+	GinZapMw := generated.MiddlewareFunc(ginzap.Ginzap(a.logger, time.RFC3339, true))
+	requestIdMw := generated.MiddlewareFunc(requestid.RequestID(nil))
 	middlewares := []generated.MiddlewareFunc{
-		middlewareTracer,
-		middlewareGinZap,
+		tracerMw,
+		GinZapMw,
+		requestIdMw,
 	}
 
 	// Добавляем роуты api

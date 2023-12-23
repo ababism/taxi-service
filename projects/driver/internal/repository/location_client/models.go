@@ -1,4 +1,4 @@
-package models
+package location_client
 
 type Error struct {
 	Message string `json:"message"`
