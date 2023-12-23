@@ -3,8 +3,8 @@ package mongo
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
+	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/mongo/models"
+	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/service/adapters"
 	"go.uber.org/zap"
 
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/mongo/migrate"
@@ -14,27 +14,14 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
+var _ adapters.DriverRepository = &DriveRepository{}
+
 type DriveRepository struct {
-	client     *mongo.Client
-	db         *mongo.Database
-	collection *mongo.Collection
+	client           *mongo.Client
+	db               *mongo.Database
+	driverCollection *mongo.Collection
 
 	logger *zap.Logger
-}
-
-func (r *DriveRepository) GetTripByID(ctx context.Context, tripId uuid.UUID) (domain.Trip, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (r *DriveRepository) GetTrips(ctx context.Context, driverId uuid.UUID) ([]domain.Trip, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (r *DriveRepository) ChangeTripStatus(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID, status domain.TripStatus) error {
-	//TODO implement me
-	panic("implement me")
 }
 
 func NewDriverRepository(logger *zap.Logger) *DriveRepository {
@@ -68,6 +55,8 @@ func (r *DriveRepository) Connect(ctx context.Context, cfg *Config, migrateCfg *
 			return client.Disconnect, fmt.Errorf("run migrations failed")
 		}
 	}
+
+	r.driverCollection = database.Collection(models.DriverCollectionName)
 
 	return client.Disconnect, nil
 }

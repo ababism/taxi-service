@@ -8,7 +8,6 @@ import (
 
 type DriverRepository interface {
 	GetTripByID(ctx context.Context, tripId uuid.UUID) (domain.Trip, error)
-	GetTrips(ctx context.Context, driverId uuid.UUID) ([]domain.Trip, error)
-	// Only to change to DRIVER_FOUND
-	ChangeTripStatus(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID, status domain.TripStatus) error
+	ChangeTripStatus(ctx context.Context, tripId uuid.UUID, status domain.TripStatus) error
+	CreateTrip(ctx context.Context, status domain.Trip) error
 }

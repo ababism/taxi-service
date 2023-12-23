@@ -22,11 +22,11 @@ func (s driverService) GetTripByID(ctx context.Context, driverId uuid.UUID, trip
 	log := zapctx.Logger(ctx)
 
 	tr := global.Tracer(domain.ServiceName)
-	traceCtx, span := tr.Start(ctx, "driver.service: GetTripByID")
+	newCtx, span := tr.Start(ctx, "driver.service: GetTripByID")
 	defer span.End()
 
 	// err if trip driver != nil and driver != driverId
-	trip, err := s.r.GetTripByID(traceCtx, tripId)
+	trip, err := s.r.GetTripByID(newCtx, tripId)
 	if err != nil {
 		log.Error("driver-service: get trip from repository")
 		return nil, domain.FilterErrors(err)
@@ -125,8 +125,8 @@ func (s driverService) EndTrip(ctx context.Context, driverId uuid.UUID, tripId u
 		log.Error("can't get trip from repository")
 		return domain.FilterErrors(err)
 	}
-	// TODO ask about *trip.Status != s.tripStatuses.GetOnPosition()
-	if trip.Status == nil || *trip.Status != s.tripStatuses.GetOnPosition() {
+	// TODO REDO ask about *trip.Status != s.tripStatuses.GetOnPosition()
+	if trip.Status == nil || *trip.Status != s.tripStatuses.GetStarted() {
 		return errors.Wrap(domain.ErrAccessDenied, "trip hasn't connected with driver yet")
 	}
 	if trip.DriverId != nil && *trip.DriverId != driverId.String() {
@@ -152,7 +152,9 @@ func (s driverService) GetTrips(ctx context.Context, driverId uuid.UUID) ([]doma
 	//
 	// 		span.AddEvent("Message from Kafka")
 	//		TripCreated <- Kafka
+	//
 	//		drivers := s.locationClient.GetDrivers(TripCreated.userLocation, radius)
+	//
 	//      for range drivers {
 	//			if dr.id == id {
 	//					trips = trips.append(TripCreated)
