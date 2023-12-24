@@ -10,6 +10,8 @@ import (
 	"gitlab/ArtemFed/mts-final-taxi/pkg/mylogger"
 	"gitlab/ArtemFed/mts-final-taxi/pkg/mytracer"
 	kafkaConsumer "gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/daemons/kafkaConsumer"
+	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/daemons/scraper"
+	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/handler/http/driver_api"
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/kafka_producer"
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/location_client"
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/mongo"
@@ -28,6 +30,8 @@ type Config struct {
 	KafkaReader      *kafkaConsumer.Config         `mapstructure:"kafka_reader"`
 	KafkaWriter      *kafka_producer.Config        `mapstructure:"kafka_writer"`
 	Tracer           *mytracer.Config              `mapstructure:"tracer"`
+	Scraper          *scraper.Config               `mapstructure:"scraper"`
+	LongPoll         *driver_api.Config            `mapstructure:"long_poll"`
 }
 
 func NewConfig(filePath string) (*Config, error) {

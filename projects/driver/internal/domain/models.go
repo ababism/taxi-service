@@ -4,7 +4,11 @@ import (
 	"github.com/google/uuid"
 )
 
-const ServiceName = "mts-final-taxi/driver"
+const (
+	// TODO testing
+	SearchRadius = 113_000
+	ServiceName  = "mts-final-taxi/driver"
+)
 
 // LatLngLiteral An object describing a specific location with Latitude and Longitude in decimal degrees.
 type LatLngLiteral struct {

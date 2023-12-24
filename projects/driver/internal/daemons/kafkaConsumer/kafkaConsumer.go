@@ -55,7 +55,7 @@ func (kc *KafkaConsumer) consumeMessages(mainCtx context.Context) {
 		ctx := context.Background()
 		message, err := kc.reader.ReadMessage(ctx)
 		if err != nil {
-			logger.Error("error while reading message from kafka", zap.Error(err))
+			logger.Debug("error while reading message from kafka", zap.Error(err))
 			continue
 		}
 

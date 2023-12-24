@@ -40,4 +40,5 @@ postgres:
   migration: "migrations"
 
 tracer:
+  enable: true
   exp_target: "host.docker.internal:4317"

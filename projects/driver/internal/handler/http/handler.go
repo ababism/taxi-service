@@ -3,6 +3,7 @@ package http
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -35,15 +36,15 @@ func InitHandler(
 	logger *zap.Logger,
 	middlewares []generated.MiddlewareFunc,
 	driverService adapters.DriverService,
+	socketTimeout time.Duration,
 ) {
-	driverHandler := driverAPI.NewDriverHandler(logger, driverService)
+	driverHandler := driverAPI.NewDriverHandler(logger, driverService, socketTimeout)
 
 	ginOpts := generated.GinServerOptions{
 		BaseURL:      fmt.Sprintf("%s/%s", httpPrefix, getVersion()),
 		Middlewares:  middlewares,
 		ErrorHandler: HandleError,
 	}
-
 	generated.RegisterHandlersWithOptions(router, driverHandler, ginOpts)
 }
 
