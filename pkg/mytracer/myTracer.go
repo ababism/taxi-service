@@ -29,13 +29,12 @@ func InitTracer(cfg *Config, appCfg *app.Config) (*sdktrace.TracerProvider, erro
 	}
 
 	var batcher sdktrace.TracerProviderOption
-	log.Println(cfg.ExporterTarget)
 	if cfg.Enable {
 		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 		defer cancel()
 
 		conn, err := grpc.DialContext(ctx,
-			cfg.ExporterTarget,
+			cfg.ExpTarget,
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
 			grpc.WithBlock(),
 		)
@@ -55,16 +54,10 @@ func InitTracer(cfg *Config, appCfg *app.Config) (*sdktrace.TracerProvider, erro
 		}
 		batcher = sdktrace.WithBatcher(exp)
 	}
-	exp, err := stdout.New(stdout.WithPrettyPrint())
-	if err != nil {
-		return nil, fmt.Errorf("failed to create trace exporter: %w", err)
-	}
-	batcher2 := sdktrace.WithBatcher(exp)
 
 	tp := sdktrace.NewTracerProvider(
 		sdktrace.WithSampler(sdktrace.AlwaysSample()),
 		batcher,
-		batcher2,
 		sdktrace.WithResource(res),
 	)
 	otel.SetTracerProvider(tp)

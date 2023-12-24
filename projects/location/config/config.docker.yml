@@ -6,14 +6,14 @@ app:
 
 logger:
   env: "dev" # "prod"
-  level_logger: "debug"
-  level_sentry: "error"
+  level: "debug"
   outputs:
     - "stdout"
   error_outputs:
     - "stderr"
   encoding: "json"
   sentry_dsn: ""
+  sentry_level: "error"
 
 metrics:
   enable: false
@@ -35,10 +35,10 @@ postgres:
   port: 5432
   username: "postgres"
   password: "password"
-  db-name: "location_db"
-  ssl-mode: "disable"
+  dbname: "location_db"
+  sslmode: "disable"
   migration: "migrations"
 
 tracer:
   enable: true
-  exp_target: "jaeger-all-in-one:4317"
+  exp_target: "host.docker.internal:4317"

@@ -28,6 +28,7 @@ func ReplaceWithEnv(config interface{}, prefix string) {
 		} else {
 			envName := strings.ToUpper(fieldName)
 			envValue := os.Getenv(envName)
+			//fmt.Printf("%s = %s\n", envName, envValue)
 
 			// Замена значения, если переменная окружения задана
 			if envValue != "" {

@@ -34,7 +34,7 @@ func (kp *KafkaProducer) SendTripStatusUpdate(ctx context.Context, trip domain.T
 	log := zapctx.Logger(ctx)
 
 	tr := global.Tracer(domain.ServiceName)
-	newCtx, span := tr.Start(ctx, "driver.repository.mongo: GetTripsByStatus")
+	newCtx, span := tr.Start(ctx, "driver.repository: SendTripStatusUpdate")
 	defer span.End()
 
 	tc := ToTripCommand(trip, commandType, reason)
@@ -45,7 +45,7 @@ func (kp *KafkaProducer) SendTripStatusUpdate(ctx context.Context, trip domain.T
 		return fmt.Errorf("failed to marshal TripCommand to message: %w", domain.ErrInternal)
 	}
 
-	err = kp.SendMessageToKafka(newCtx, message)
+	err = kp.SendMessageWithKaKafka(newCtx, message)
 	if err != nil {
 		log.Error("failed write message to kafka:", zap.Error(err))
 		return fmt.Errorf("failed to send message to Kafka: %w", domain.ErrInternal)
@@ -53,7 +53,7 @@ func (kp *KafkaProducer) SendTripStatusUpdate(ctx context.Context, trip domain.T
 	return nil
 }
 
-func (kp *KafkaProducer) SendMessageToKafka(ctx context.Context, message []byte) error {
+func (kp *KafkaProducer) SendMessageWithKaKafka(ctx context.Context, message []byte) error {
 	return kp.producer.WriteMessages(ctx, kafka.Message{
 		Value: message,
 	})
