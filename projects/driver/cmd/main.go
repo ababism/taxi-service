@@ -10,23 +10,23 @@ import (
 	"os"
 )
 
+const MainEnvName = ".env"
+const AppCapsName = "DRIVER"
+
 func init() {
-	if err := godotenv.Load(); err != nil {
-		log.Print("No .env file found")
+	if err := godotenv.Load(MainEnvName); err != nil {
+		log.Print(fmt.Sprintf("No '%s' file found", MainEnvName))
 	}
 }
 
 func main() {
 	ctx := context.Background()
 
-	configPath := os.Getenv("CONFIG_DRIVER")
-	if configPath == "" {
-		configPath = "config/config.local.yml"
-	}
+	configPath := os.Getenv("CONFIG_" + AppCapsName)
 	log.Println("Driver config path: ", configPath)
 
 	// Собираем конфиг приложения
-	cfg, err := config.NewConfig(configPath)
+	cfg, err := config.NewConfig(configPath, AppCapsName)
 	if err != nil {
 		log.Fatal("Fail to parse driver config: ", err)
 	}
@@ -38,6 +38,5 @@ func main() {
 	}
 
 	// Запускаем приложение
-	// По конфигам приложение само поймет, что нужно поднять
 	application.Start(ctx)
 }

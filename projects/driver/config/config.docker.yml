@@ -6,14 +6,14 @@ app:
 
 logger:
   env: "dev" # "prod"
-#  level_logger: "debug"
-  level_logger: "info"
-  level_sentry: "error"
+  #  level: "debug"
+  level: "info"
   outputs:
     - "stdout"
   error_outputs:
     - "stderr"
   encoding: "json"
+  sentry_level: "error"
   sentry_dsn: ""
 
 metrics:

@@ -23,7 +23,7 @@ type Config struct {
 	Tracer           *mytracer.Config          `mapstructure:"tracer"`
 }
 
-func NewConfig(filePath string) (*Config, error) {
+func NewConfig(filePath string, appName string) (*Config, error) {
 	viper.SetConfigFile(filePath)
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("error while reading config file: %v", err)
@@ -36,7 +36,7 @@ func NewConfig(filePath string) (*Config, error) {
 	}
 
 	// Замена значений из переменных окружения, если они заданы
-	configLib.ReplaceWithEnv(&config, "")
+	configLib.ReplaceWithEnv(&config, appName)
 
 	return &config, nil
 }

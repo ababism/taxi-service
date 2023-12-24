@@ -21,7 +21,7 @@ import (
 type Config struct {
 	App              *app.Config                  `mapstructure:"app"`
 	Http             *http_server.Config          `mapstructure:"http"`
-	LocationClient   *locationclient.ClientConfig `mapstructure:"locationclient"`
+	LocationClient   *locationclient.ClientConfig `mapstructure:"location_client"`
 	Logger           *mylogger.Config             `mapstructure:"logger"`
 	Mongo            *mongo.Config                `mapstructure:"mongo"`
 	MigrationsMongo  *mongo.ConfigMigrations      `mapstructure:"migrations_mongo"`
@@ -34,7 +34,7 @@ type Config struct {
 	LongPoll         *driver_api.Config           `mapstructure:"long_poll"`
 }
 
-func NewConfig(filePath string) (*Config, error) {
+func NewConfig(filePath string, appName string) (*Config, error) {
 	viper.SetConfigFile(filePath)
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("error while reading config file: %v", err)
@@ -47,7 +47,7 @@ func NewConfig(filePath string) (*Config, error) {
 	}
 
 	// Замена значений из переменных окружения, если они заданы
-	configLib.ReplaceWithEnv(&config, "")
+	configLib.ReplaceWithEnv(&config, appName)
 
 	return &config, nil
 }

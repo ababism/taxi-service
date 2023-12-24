@@ -20,6 +20,6 @@ go.work
 
 .idea
 /.idea
-projects/driver/.env
 
-.env
+*.env.dev
+*.env

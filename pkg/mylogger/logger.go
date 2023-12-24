@@ -14,7 +14,7 @@ const (
 
 func InitLogger(cfg *Config, appName string) (*zap.Logger, error) {
 	var levelZap, levelSentry zapcore.Level
-	err := levelZap.UnmarshalText([]byte(cfg.LevelLogger))
+	err := levelZap.UnmarshalText([]byte(cfg.Level))
 	if err != nil {
 		log.Printf("Zap logs level with value=%s not initiolized", levelZap)
 		return nil, err
@@ -27,8 +27,8 @@ func InitLogger(cfg *Config, appName string) (*zap.Logger, error) {
 		cfgZap = zap.NewProductionConfig()
 	}
 	cfgZap.Level = zap.NewAtomicLevelAt(levelZap)
-	cfgZap.OutputPaths = cfg.OutputPaths
-	cfgZap.ErrorOutputPaths = cfg.ErrorOutputPaths
+	cfgZap.OutputPaths = cfg.Outputs
+	cfgZap.ErrorOutputPaths = cfg.ErrorOutputs
 
 	logger, err := cfgZap.Build()
 	if err != nil {
@@ -36,7 +36,7 @@ func InitLogger(cfg *Config, appName string) (*zap.Logger, error) {
 		return nil, err
 	}
 
-	err = levelSentry.UnmarshalText([]byte(cfg.LevelSentry))
+	err = levelSentry.UnmarshalText([]byte(cfg.SentryLevel))
 	if err != nil {
 		log.Printf("Sentry logs level with value=%s not initiolized", levelZap)
 		return nil, err

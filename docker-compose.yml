@@ -74,7 +74,7 @@ services:
       - "5432:5432"
     environment:
       - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_HOST=${DB_NAME}
+      - POSTGRES_HOST=${DB_HOST}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     # -U postgres -d postgres = -U {db user} -d {db name}
