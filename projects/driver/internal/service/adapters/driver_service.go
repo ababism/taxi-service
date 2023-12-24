@@ -17,4 +17,5 @@ type DriverService interface {
 	StartTrip(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID) error
 	EndTrip(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID) error
 	GetTrips(ctx context.Context, driverId uuid.UUID) ([]domain.Trip, error)
+	GetDrivers(ctx context.Context, driverLocation domain.LatLngLiteral, radius float32) ([]domain.DriverLocation, error)
 }

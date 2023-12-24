@@ -6,7 +6,8 @@ app:
 
 logger:
   env: "dev" # "prod"
-  level_logger: "debug"
+#  level_logger: "debug"
+  level_logger: "info"
   level_sentry: "error"
   outputs:
     - "stdout"
@@ -55,6 +56,12 @@ kafka_writer:
     - broker1.todo
   topic: "TODO_my_topic"
   id_group: "TODO_group_id"
+
+scraper:
+  scrape_interval: 3s
+
+long_poll:
+  long_poll_timeout: 4s
 
 tracer:
   enable: true

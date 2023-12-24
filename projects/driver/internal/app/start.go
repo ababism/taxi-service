@@ -11,6 +11,7 @@ import (
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/handler/generated"
 	myHttp "gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/handler/http"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
+	"go.uber.org/zap"
 	"time"
 )
 
@@ -42,8 +43,13 @@ func (a *App) startHTTPServer(ctx context.Context) {
 		requestIdMw,
 	}
 
+	longPollTimeout, err := a.cfg.LongPoll.GetLongPollTimeout()
+	if err != nil {
+		a.logger.Fatal("can't parse time from scraper LongPollTimeout config string:", zap.Error(err))
+	}
+
 	// Добавляем роуты api
-	myHttp.InitHandler(router.GetRouter(), a.logger, middlewares, a.service)
+	myHttp.InitHandler(router.GetRouter(), a.logger, middlewares, a.service, longPollTimeout)
 
 	// Создаем сервер
 	srv := httpServer.New(a.cfg.Http)

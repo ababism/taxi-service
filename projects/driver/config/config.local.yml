@@ -50,6 +50,12 @@ kafka_reader:
   min_bytes: 1
   max_bytes: 2048
 
+scraper:
+  scrape_interval: "5s"
+
+long_poll:
+  long_poll_timeout: "10s"
+
 tracer:
   enable: false
   exp_target: "jaeger-all-in-one:4317"
