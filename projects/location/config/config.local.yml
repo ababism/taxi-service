@@ -38,3 +38,7 @@ graceful_shutdown:
   delay: "5s"
   wait_timeout: "5s"
   callback_timeout: "2s"
+
+tracer:
+  enable: false
+  exp_target: "jaeger-all-in-one:4317"

@@ -26,7 +26,7 @@ graceful_shutdown:
 
 http:
   host: "0.0.0.0"
-  port: 9090
+  port: 8084
   read_timeout: "1s"
   write_timeout: "1s"
 
@@ -38,3 +38,6 @@ postgres:
   db-name: "location_db"
   ssl-mode: "disable"
   migration: "migrations"
+
+tracer:
+  exp_target: "host.docker.internal:4317"

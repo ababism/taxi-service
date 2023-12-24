@@ -3,12 +3,10 @@ package http_server
 import (
 	"context"
 	"fmt"
-	"net/http"
-	"strconv"
-	"time"
-
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
+	"net/http"
+	"strconv"
 )
 
 type Server struct {
@@ -47,11 +45,10 @@ func (s *Server) Stop(ctx context.Context) error {
 
 func (s *Server) metricsMiddleware(router *gin.Engine) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
+		route := r.URL.Path
 
 		lrw := newLoggingResponseWriter(w)
 		router.ServeHTTP(lrw, r)
-		baseRoute := router.BasePath()
-		s.metrics.observe(r.Method, strconv.Itoa(lrw.statusCode), baseRoute, start)
+		s.metrics.observe(r.Method, strconv.Itoa(lrw.statusCode), route)
 	})
 }

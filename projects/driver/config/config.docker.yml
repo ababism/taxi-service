@@ -31,7 +31,7 @@ http:
   write_timeout: "1s"
 
 location_client:
-  uri: "http://location-svc:9090"
+  uri: "http://location-svc:8084"
 
 mongo:
   database: driver
@@ -55,3 +55,7 @@ kafka_writer:
     - broker1.todo
   topic: "TODO_my_topic"
   id_group: "TODO_group_id"
+
+tracer:
+  enable: true
+  exp_target: "host.docker.internal:4317"

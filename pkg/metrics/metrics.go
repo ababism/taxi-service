@@ -23,11 +23,6 @@ type MetricDTO struct {
 
 // InitOnce конфигурирует работу пакета. Аналог init()
 func InitOnce(cfg *Config, logger *zap.Logger, app AppInfo) {
-	// Регистрация работы с prometheus
-
 	// Создание реестра метрик
 	initRegistry(logger.Sugar().Errorf)
-
-	// Регистрируем все технические метрики приложения
-	//RegisterAppTechMetrics()
 }

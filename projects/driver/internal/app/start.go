@@ -11,7 +11,6 @@ import (
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/handler/generated"
 	myHttp "gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/handler/http"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
-	"go.opentelemetry.io/otel/sdk/trace"
 	"time"
 )
 
@@ -34,10 +33,7 @@ func (a *App) startHTTPServer(ctx context.Context) {
 	// Добавляем системные роуты
 	router.WithHandleGET("/metrics", metrics.HandleFunc())
 
-	tp := trace.NewTracerProvider()
-
-	// TODO Add tracer shutdown
-	tracerMw := generated.MiddlewareFunc(otelgin.Middleware(a.cfg.App.Name, otelgin.WithTracerProvider(tp)))
+	tracerMw := generated.MiddlewareFunc(otelgin.Middleware(a.cfg.App.Name, otelgin.WithTracerProvider(a.tracerProvider)))
 	GinZapMw := generated.MiddlewareFunc(ginzap.Ginzap(a.logger, time.RFC3339, true))
 	requestIdMw := generated.MiddlewareFunc(requestid.RequestID(nil))
 	middlewares := []generated.MiddlewareFunc{

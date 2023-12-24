@@ -15,9 +15,6 @@ type Counter interface {
 }
 
 // counter - реализация Counter интерфейса.
-// Данная метрика не является самостоятельной реализацией работы с метриками. Это оболочка, которая обладает
-// указателями на несколько реализаций для выполнения разных задач.
-// prometheus - обеспечивает накопление метрик на уровне приложения и отдачи по pull модели.
 type counter struct { // implement Counter
 	prom prometheus.Counter
 }
@@ -30,7 +27,6 @@ func (c *counter) Add(val float64) {
 	c.prom.Add(val)
 }
 
-// getMetric дает альтернативу по получению метрик как пакет promhttp
 func (c *counter) getMetric() (*MetricDTO, error) {
 	mC := &dto.Metric{}
 	if err := c.prom.Write(mC); err != nil {
@@ -61,9 +57,6 @@ type CounterVec struct { // implement RegistryMetric
 }
 
 // GetOrRegisterCounterVec создает или возвращает уже созданную фабрику метрик Counter.
-// CounterVec это множественная метрика счетчика. Счетчики можно выделять в группы по разным лейблам.
-// Если вы хотите вести счет каких либо действий в зависимости от результата, то это идеальный вариант для вас.
-// С помощью WithLabelValues вы получите необходимую группу счетчика и будете изменять только ее.
 func GetOrRegisterCounterVec(opts CounterOpts, labels []string) *CounterVec {
 	if rm := globalRegistry.getMetric(opts.Name); rm != nil {
 		if vm, ok := rm.(*CounterVec); ok {

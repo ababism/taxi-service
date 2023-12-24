@@ -8,6 +8,7 @@ import (
 	"gitlab/ArtemFed/mts-final-taxi/pkg/http_server"
 	"gitlab/ArtemFed/mts-final-taxi/pkg/metrics"
 	"gitlab/ArtemFed/mts-final-taxi/pkg/mylogger"
+	"gitlab/ArtemFed/mts-final-taxi/pkg/mytracer"
 	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/repository"
 	"log"
 )
@@ -19,6 +20,7 @@ type Config struct {
 	Postgres         *repository.Config        `mapstructure:"postgres"`
 	Metrics          *metrics.Config           `mapstructure:"metrics"`
 	GracefulShutdown *graceful_shutdown.Config `mapstructure:"graceful_shutdown"`
+	Tracer           *mytracer.Config          `mapstructure:"tracer"`
 }
 
 func NewConfig(filePath string) (*Config, error) {
