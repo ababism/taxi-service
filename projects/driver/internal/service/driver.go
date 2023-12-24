@@ -6,6 +6,7 @@ import (
 	"github.com/juju/zaputil/zapctx"
 	"github.com/pkg/errors"
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
+
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/service/adapters"
 	global "go.opentelemetry.io/otel"
 	"go.uber.org/zap"
@@ -16,12 +17,14 @@ var _ adapters.DriverService = &driverService{}
 type driverService struct {
 	r              adapters.DriverRepository
 	locationClient adapters.LocationClient
+	kafkaClient    adapters.KafkaClient
 }
 
-func NewDriverService(driverRepository adapters.DriverRepository, locationClient adapters.LocationClient) adapters.DriverService {
+func NewDriverService(driverRepository adapters.DriverRepository, locationClient adapters.LocationClient, kafkaClient adapters.KafkaClient) adapters.DriverService {
 	return &driverService{
 		r:              driverRepository,
 		locationClient: locationClient,
+		kafkaClient:    kafkaClient,
 	}
 }
 
@@ -106,15 +109,21 @@ func (s *driverService) AcceptTrip(ctx context.Context, driverId uuid.UUID, trip
 	ctx = zapctx.WithLogger(newCtx, logger)
 
 	trip, err := s.r.GetTripByID(newCtx, tripId)
-	if err != nil {
-		logger.Error("can't get trip from repository")
+	if err != nil || trip == nil {
+		logger.Error("can't get trip from repository", zap.Error(err))
 		return err
 	}
 
 	if trip.Status == nil || *trip.Status != domain.TripStatuses.GetDriverSearch() {
 		return errors.Wrap(domain.ErrAccessDenied, "trip doesn't need driver")
 	}
-	// TODO Kafka <- acceptTrip
+	dId := driverId.String()
+	trip.DriverId = &dId
+	err = s.kafkaClient.SendTripStatusUpdate(newCtx, *trip, domain.TripCommandAccept, nil)
+	if err != nil {
+		logger.Error("can't send accept trip to kafka:", zap.Error(err))
+		return err
+	}
 
 	return nil
 }
@@ -129,18 +138,23 @@ func (s *driverService) CancelTrip(ctx context.Context, driverId uuid.UUID, trip
 	ctx = zapctx.WithLogger(newCtx, logger)
 
 	trip, err := s.r.GetTripByID(newCtx, tripId)
-	if err != nil {
-		logger.Error("can't get trip from repository")
+	if err != nil || trip == nil {
+		logger.Error("can't get trip from repository", zap.Error(err))
 		return err
 	}
-	if trip.Status == nil || *trip.Status == domain.TripStatuses.GetDriverSearch() {
-		return errors.Wrap(domain.ErrAccessDenied, "trip hasn't connected with driver yet")
-	}
+	//if trip.Status == nil || *trip.Status == domain.TripStatuses.GetDriverSearch() {
+	//	return errors.Wrap(domain.ErrAccessDenied, "trip hasn't connected with driver yet")
+	//}
 	if trip.DriverId != nil && *trip.DriverId != driverId.String() {
 		return errors.Wrap(domain.ErrAccessDenied, "trip driver id does not match passed id")
 	}
-	// TODO Kafka <- cancel (with Reason)
-
+	dId := driverId.String()
+	trip.DriverId = &dId
+	err = s.kafkaClient.SendTripStatusUpdate(newCtx, *trip, domain.TripCommandCancel, reason)
+	if err != nil {
+		logger.Error("can't send cancel trip command to kafka:", zap.Error(err))
+		return err
+	}
 	return nil
 }
 
@@ -154,20 +168,24 @@ func (s *driverService) StartTrip(ctx context.Context, driverId uuid.UUID, tripI
 	ctx = zapctx.WithLogger(newCtx, logger)
 
 	trip, err := s.r.GetTripByID(newCtx, tripId)
-	if err != nil {
-		logger.Error("can't get trip from repository")
+	if err != nil || trip == nil {
+		logger.Error("can't get trip from repository", zap.Error(err))
 		return err
 	}
-	// TODO ask about *trip.Status != s.tripStatuses.GetOnPosition()
-	if trip.Status == nil || *trip.Status != domain.TripStatuses.GetOnPosition() || *trip.Status != domain.TripStatuses.GetDriverFound() {
-		return errors.Wrap(domain.ErrAccessDenied, "trip hasn't connected with driver yet")
-	}
+	//  ask about *trip.Status != s.tripStatuses.GetOnPosition()
+	//if trip.Status == nil || *trip.Status != domain.TripStatuses.GetOnPosition() || *trip.Status != domain.TripStatuses.GetDriverFound() {
+	//	return errors.Wrap(domain.ErrAccessDenied, "trip hasn't connected with driver yet")
+	//}
 	if trip.DriverId != nil && *trip.DriverId != driverId.String() {
 		return errors.Wrap(domain.ErrAccessDenied, "trip driver id does not match passed id")
 	}
-
-	// TODO Kafka <- start trip
-
+	dId := driverId.String()
+	trip.DriverId = &dId
+	err = s.kafkaClient.SendTripStatusUpdate(newCtx, *trip, domain.TripCommandStart, nil)
+	if err != nil {
+		logger.Error("can't send start trip command to kafka:", zap.Error(err))
+		return err
+	}
 	return nil
 }
 
@@ -181,19 +199,23 @@ func (s *driverService) EndTrip(ctx context.Context, driverId uuid.UUID, tripId 
 	ctx = zapctx.WithLogger(newCtx, logger)
 
 	trip, err := s.r.GetTripByID(newCtx, tripId)
-	if err != nil {
-		logger.Error("can't get trip from repository")
+	if err != nil || trip == nil {
+		logger.Error("can't get trip from repository", zap.Error(err))
 		return err
 	}
-	// TODO REDO ask about *trip.Status != s.tripStatuses.GetOnPosition()
-	if trip.Status == nil || *trip.Status != domain.TripStatuses.GetStarted() {
-		return errors.Wrap(domain.ErrAccessDenied, "trip hasn't connected with driver yet")
-	}
+	//if trip.Status == nil || *trip.Status != domain.TripStatuses.GetStarted() {
+	//	return errors.Wrap(domain.ErrAccessDenied, "trip hasn't connected with driver yet")
+	//}
 	if trip.DriverId != nil && *trip.DriverId != driverId.String() {
 		return errors.Wrap(domain.ErrAccessDenied, "trip driver id does not match passed id")
 	}
-	// TODO Kafka <- End trip
-
+	dId := driverId.String()
+	trip.DriverId = &dId
+	err = s.kafkaClient.SendTripStatusUpdate(newCtx, *trip, domain.TripCommandEnd, nil)
+	if err != nil {
+		logger.Error("can't send end trip command to kafka:", zap.Error(err))
+		return err
+	}
 	return nil
 }
 

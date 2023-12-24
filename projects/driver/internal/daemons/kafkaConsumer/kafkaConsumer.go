@@ -20,7 +20,7 @@ type KafkaConsumer struct {
 	driverService adapters.DriverService
 }
 
-func NewKafkaConsumer(cfg Config, driverService adapters.DriverService) *KafkaConsumer {
+func NewKafkaConsumer(cfg *Config, driverService adapters.DriverService) *KafkaConsumer {
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:  cfg.Brokers,
 		Topic:    cfg.Topic,
