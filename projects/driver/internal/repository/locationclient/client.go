@@ -1,12 +1,12 @@
-package location_client
+package locationclient
 
 import (
 	"context"
 	"encoding/json"
 	"github.com/juju/zaputil/zapctx"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/location_client/generated"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/service/adapters"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/repository/locationclient/generated"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/service/adapters"
 	global "go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
@@ -35,7 +35,7 @@ func (c Client) GetDrivers(ctx context.Context, driverLocation domain.LatLngLite
 	log := zapctx.Logger(ctx)
 
 	tr := global.Tracer(domain.ServiceName)
-	newCtx, span := tr.Start(ctx, "driver.repository.location_client: GetDrivers")
+	newCtx, span := tr.Start(ctx, "driver.repository.locationclient: GetDrivers")
 
 	defer span.End()
 

@@ -3,7 +3,7 @@ package adapters
 import (
 	"context"
 	"github.com/google/uuid"
-	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/domain"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/location/internal/domain"
 )
 
 type LocationService interface {

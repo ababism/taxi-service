@@ -1,6 +1,6 @@
 # location-client-oapi-codegen.yaml for location client
 
-output: projects/driver/internal/client/generated/location-client-oapi-codegen.go
+output: projects/driver/internal/repository/locationclient/generated/locationClientCodegen.go
 package: generated
 generate:
   - types

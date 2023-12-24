@@ -32,7 +32,7 @@ services:
       - "14250"
 
   otel-collector:
-    image: otel/opentelemetry-collector:0.88.0
+    image: otel/opentelemetry-collector:latest
     restart: always
     command:
       - "--config=/etc/otel/otel-collector-config.yaml"

@@ -3,7 +3,7 @@ package adapters
 import (
 	"context"
 	openapitypes "github.com/oapi-codegen/runtime/types"
-	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/domain"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/location/internal/domain"
 )
 
 type LocationRepository interface {

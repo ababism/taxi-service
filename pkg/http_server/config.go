@@ -20,12 +20,8 @@ type Config struct {
 
 // NewConfig use with dep on pkg/Config for configure rpc server
 func NewConfig(prefix string) *Config {
-	if prefix != "" {
-		prefix += "."
-	}
-
 	cfg := &Config{}
-	// TODO Флаги
+	// TODO Поставить флаги
 	//config.StringVar(&cfg.Host, prefix+"host", defaultHost, "description")
 	//config.IntVar(&cfg.Port, prefix+"port", defaultPort, "description")
 	//config.DurationVar(&cfg.ReadTimeout, prefix+"read_timeout", defaultReadTimeout, "description")

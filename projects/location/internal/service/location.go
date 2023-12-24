@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 	"github.com/google/uuid"
-	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/domain"
-	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/service/adapters"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/location/internal/domain"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/location/internal/service/adapters"
 	global "go.opentelemetry.io/otel"
 )
 
@@ -20,7 +20,7 @@ func NewLocationService(ur adapters.LocationRepository) adapters.LocationService
 
 func (s *locationService) GetDrivers(ctx context.Context, lat float32, lng float32, radius float32) ([]domain.Driver, error) {
 	tr := global.Tracer(domain.TracerName)
-	ctxTrace, span := tr.Start(ctx, "[LocationService-GetDrivers]")
+	ctxTrace, span := tr.Start(ctx, "location.service: GetDrivers")
 	defer span.End()
 
 	err := validateCoordinates(lat, lng)
@@ -38,7 +38,7 @@ func (s *locationService) GetDrivers(ctx context.Context, lat float32, lng float
 
 func (s *locationService) UpdateDriverLocation(ctx context.Context, driverId uuid.UUID, lat float32, lng float32) error {
 	tr := global.Tracer(domain.TracerName)
-	ctxTrace, span := tr.Start(ctx, "[LocationService-UpdateDriverLocation]")
+	ctxTrace, span := tr.Start(ctx, "location.service: UpdateDriverLocation")
 	defer span.End()
 
 	err := validateCoordinates(lat, lng)

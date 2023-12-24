@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/joho/godotenv"
-	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/app"
-	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/config"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/app"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/config"
 	"log"
 	"os"
 )
@@ -17,18 +17,18 @@ func init() {
 }
 
 func main() {
-	//gin.SetMode(gin.ReleaseMode)
 	ctx := context.Background()
 
-	configPath := os.Getenv("CONFIG_LOCATION")
+	configPath := os.Getenv("CONFIG_DRIVER")
 	if configPath == "" {
 		configPath = "config/config.local.yml"
 	}
-	log.Println("Location config path: ", configPath)
+	log.Println("Driver config path: ", configPath)
+
 	// Собираем конфиг приложения
 	cfg, err := config.NewConfig(configPath)
 	if err != nil {
-		log.Fatal("Fail to parse Location config: ", err)
+		log.Fatal("Fail to parse driver config: ", err)
 	}
 
 	// Создаем наше приложение

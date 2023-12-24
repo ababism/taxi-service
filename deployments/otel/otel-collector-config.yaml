@@ -5,13 +5,11 @@ receivers:
 
 exporters:
   debug:
-  otlp:
-    endpoint: host.docker.internal:4317
+    verbosity: detailed
+  otlp/jaeger:
+    endpoint: jaeger-all-in-one:4317
     tls:
       insecure: true
-
-processors:
-  batch:
 
 extensions:
   health_check:
@@ -24,6 +22,5 @@ service:
   extensions: [pprof, zpages, health_check]
   pipelines:
     traces:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [debug, otlp]
+      receivers: [ otlp ]
+      exporters: [ otlp/jaeger ]

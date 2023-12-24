@@ -1,11 +1,11 @@
-package location_api
+package api
 
 import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/domain"
-	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/handler/models"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/location/internal/domain"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/location/internal/handler/models"
 	"go.uber.org/zap"
 	"net/http"
 )

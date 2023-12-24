@@ -41,4 +41,4 @@ postgres:
 
 tracer:
   enable: true
-  exp_target: "host.docker.internal:4317"
+  exp_target: "jaeger-all-in-one:4317"

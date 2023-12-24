@@ -1,8 +1,8 @@
 package models
 
 import (
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/handler/generated"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/handler/generated"
 )
 
 func ToTripResponse(t domain.Trip) generated.Trip {

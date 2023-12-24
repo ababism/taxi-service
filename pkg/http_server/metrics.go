@@ -1,7 +1,7 @@
 package http_server
 
 import (
-	m "gitlab/ArtemFed/mts-final-taxi/pkg/metrics"
+	m "gitlab.com/ArtemFed/mts-final-taxi/pkg/metrics"
 )
 
 const metricNameSpace = "http_server"

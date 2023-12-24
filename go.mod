@@ -1,4 +1,4 @@
-module gitlab/ArtemFed/mts-final-taxi
+module gitlab.com/ArtemFed/mts-final-taxi
 
 go 1.21.4
 

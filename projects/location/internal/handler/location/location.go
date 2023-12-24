@@ -1,14 +1,14 @@
-package location_api
+package api
 
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/juju/zaputil/zapctx"
 	openapitypes "github.com/oapi-codegen/runtime/types"
-	"gitlab/ArtemFed/mts-final-taxi/pkg/app"
-	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/domain"
-	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/handler/generated"
-	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/handler/models"
-	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/service/adapters"
+	"gitlab.com/ArtemFed/mts-final-taxi/pkg/app"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/location/internal/domain"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/location/internal/handler/generated"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/location/internal/handler/models"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/location/internal/service/adapters"
 	global "go.opentelemetry.io/otel"
 	"go.uber.org/zap"
 	"net/http"
@@ -26,7 +26,7 @@ func NewLocationHandler(logger *zap.Logger, locationService adapters.LocationSer
 
 func (h *LocationHandler) GetDrivers(ctx *gin.Context, params generated.GetDriversParams) {
 	tr := global.Tracer(domain.TracerName)
-	ctxTrace, span := tr.Start(ctx, "[LocationHandler-GetDrivers]")
+	ctxTrace, span := tr.Start(ctx, "location.http: GetDrivers")
 	defer span.End()
 
 	ctxTraceLog := zapctx.WithLogger(ctxTrace, h.logger)
@@ -46,7 +46,7 @@ func (h *LocationHandler) GetDrivers(ctx *gin.Context, params generated.GetDrive
 
 func (h *LocationHandler) UpdateDriverLocation(ctx *gin.Context, driverId openapitypes.UUID) {
 	tr := global.Tracer(domain.TracerName)
-	ctxTrace, span := tr.Start(ctx, "[LocationHandler-UpdateDriverLocation]")
+	ctxTrace, span := tr.Start(ctx, "location.http: UpdateDriverLocation")
 	defer span.End()
 
 	ctxTraceLog := zapctx.WithLogger(ctxTrace, h.logger)

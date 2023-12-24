@@ -1,10 +1,10 @@
-package location_client
+package locationclient
 
 import (
 	"errors"
 	"github.com/google/uuid"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/location_client/generated"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/repository/locationclient/generated"
 )
 
 func ToDriverLocationDomain(r generated.Driver) (*domain.DriverLocation, error) {

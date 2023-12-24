@@ -1,4 +1,4 @@
-package kafka_producer
+package kafkaproducer
 
 type Config struct {
 	Brokers []string `mapstructure:"brokers"`

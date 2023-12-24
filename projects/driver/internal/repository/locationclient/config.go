@@ -1,4 +1,4 @@
-package location_client
+package locationclient
 
 type ClientConfig struct {
 	Uri string `mapstructure:"uri"`

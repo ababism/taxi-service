@@ -3,8 +3,8 @@ package scraper
 import (
 	"context"
 	"github.com/juju/zaputil/zapctx"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/service/adapters"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/service/adapters"
 	"go.uber.org/zap"
 	"time"
 )
