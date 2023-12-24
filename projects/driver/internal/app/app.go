@@ -3,10 +3,12 @@ package app
 import (
 	"context"
 	"fmt"
+	"gitlab/ArtemFed/mts-final-taxi/pkg/mytracer"
 	kafkaConsumer "gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/daemons/kafkaConsumer"
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/kafka_producer"
 	locationClient "gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/location_client"
 	locationClientGen "gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/location_client/generated"
+	"go.opentelemetry.io/otel/sdk/trace"
 	"log"
 
 	"gitlab/ArtemFed/mts-final-taxi/pkg/graceful_shutdown"
@@ -23,9 +25,10 @@ import (
 )
 
 type App struct {
-	cfg     *config.Config
-	address string
-	logger  *zap.Logger
+	cfg            *config.Config
+	address        string
+	logger         *zap.Logger
+	tracerProvider *trace.TracerProvider
 
 	service adapters.DriverService
 }
@@ -48,6 +51,23 @@ func NewApp(cfg *config.Config) (*App, error) {
 				return logger.Sync()
 			},
 		})
+
+	tp, err := mytracer.InitTracer(cfg.Tracer, cfg.App)
+	if err != nil {
+		return nil, err
+	}
+	graceful_shutdown.AddCallback(
+		&graceful_shutdown.Callback{
+			Name: "Opentelemetry",
+			FnCtx: func(ctx context.Context) error {
+				if err := tp.Shutdown(context.Background()); err != nil {
+					log.Printf("Error shutting down tracer provider: %v", err)
+					return err
+				}
+				return nil
+			},
+		})
+	logger.Info("Init Tracer – success")
 
 	// Prometheus metrics
 	metrics.InitOnce(cfg.Metrics, logger, metrics.AppInfo{
@@ -100,9 +120,10 @@ func NewApp(cfg *config.Config) (*App, error) {
 	address := fmt.Sprintf(":%d", cfg.Http.Port)
 
 	return &App{
-		cfg:     cfg,
-		logger:  logger,
-		service: driverService,
-		address: address,
+		cfg:            cfg,
+		logger:         logger,
+		service:        driverService,
+		address:        address,
+		tracerProvider: tp,
 	}, nil
 }

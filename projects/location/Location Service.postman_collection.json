@@ -1,0 +1,313 @@
+{
+	"info": {
+		"_postman_id": "d813b4fa-25d5-49ce-8cd1-e052f55c7889",
+		"name": "Location Service",
+		"description": "Отвечает за отслеживание и поиск ближайших водителей, обновление их местоположения",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24143742"
+	},
+	"item": [
+		{
+			"name": "drivers",
+			"item": [
+				{
+					"name": "{driver_id}",
+					"item": [
+						{
+							"name": "location",
+							"item": [
+								{
+									"name": "update Driver Location",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"lat\": \"<number>\",\n  \"lng\": \"<number>\"\n}",
+											"options": {
+												"raw": {
+													"headerFamily": "json",
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/drivers/:driver_id/location",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"drivers",
+												":driver_id",
+												"location"
+											],
+											"variable": [
+												{
+													"key": "driver_id",
+													"value": "<uuid>",
+													"description": "(Required) ID of driver"
+												}
+											]
+										},
+										"description": "Обновление данных о позиции водителя"
+									},
+									"response": [
+										{
+											"name": "Success operation",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"lat\": 1,\n  \"lng\": 1\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/drivers/:driver_id/location",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"drivers",
+														":driver_id",
+														"location"
+													],
+													"variable": [
+														{
+															"key": "driver_id",
+															"value": "e4142f80-2d8c-4864-9b45-8f9eaf60dc1f"
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": ""
+										},
+										{
+											"name": "Incorrect location",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "Content-Type",
+														"value": "application/json"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n  \"lat\": 500,\n  \"lng\": 400\n}",
+													"options": {
+														"raw": {
+															"headerFamily": "json",
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{baseUrl}}/drivers/:driver_id/location",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"drivers",
+														":driver_id",
+														"location"
+													],
+													"variable": [
+														{
+															"key": "driver_id",
+															"value": "e4143f80-2d8c-4864-9b45-8f9eaf60dc1f"
+														}
+													]
+												}
+											},
+											"status": "Bad Request",
+											"code": 400,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": ""
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "get Drivers",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application:json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/drivers?lat=1&lng=1&radius=111282",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"drivers"
+							],
+							"query": [
+								{
+									"key": "lat",
+									"value": "1",
+									"description": "(Required) Latitude in decimal degrees"
+								},
+								{
+									"key": "lng",
+									"value": "1",
+									"description": "(Required) Longitude in decimal degrees"
+								},
+								{
+									"key": "radius",
+									"value": "111282",
+									"description": "(Required) Radius of serach"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success operation",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application:json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/drivers?lat=<number>&lng=<number>&radius=<number>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"drivers"
+									],
+									"query": [
+										{
+											"key": "lat",
+											"value": "<number>",
+											"description": "(Required) Latitude in decimal degrees"
+										},
+										{
+											"key": "lng",
+											"value": "<number>",
+											"description": "(Required) Longitude in decimal degrees"
+										},
+										{
+											"key": "radius",
+											"value": "<number>",
+											"description": "(Required) Radius of serach"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application:json"
+								}
+							],
+							"cookie": [],
+							"body": "[\n  {\n    \"lat\": \"<number>\",\n    \"lng\": \"<number>\",\n    \"id\": \"<string>\"\n  },\n  {\n    \"lat\": \"<number>\",\n    \"lng\": \"<number>\",\n    \"id\": \"<string>\"\n  }\n]"
+						},
+						{
+							"name": "Drivers not found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/drivers?lat=<number>&lng=<number>&radius=<number>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"drivers"
+									],
+									"query": [
+										{
+											"key": "lat",
+											"value": "<number>",
+											"description": "(Required) Latitude in decimal degrees"
+										},
+										{
+											"key": "lng",
+											"value": "<number>",
+											"description": "(Required) Longitude in decimal degrees"
+										},
+										{
+											"key": "radius",
+											"value": "<number>",
+											"description": "(Required) Radius of serach"
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "text",
+							"header": [],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "localhost:8084/api/v1"
+		}
+	]
+}

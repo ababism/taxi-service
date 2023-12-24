@@ -3,12 +3,12 @@ services:
     image: prom/prometheus
     container_name: prometheus
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
+      - "--config.file=/etc/prometheus/prometheus.yml"
     ports:
       - 9090:9090
     restart: unless-stopped
     volumes:
-      - ./deployments/prometheus:/etc/prometheus
+      - ./prometheus:/etc/prometheus
       - prom_data:/prometheus
 
   grafana:
@@ -21,7 +21,7 @@ services:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=grafana
     volumes:
-      - ./deployments/grafana:/etc/grafana/provisioning/datasources
+      - ./grafana:/etc/grafana/provisioning/datasources
 
   jaeger-all-in-one:
     image: jaegertracing/all-in-one:latest
@@ -34,17 +34,19 @@ services:
   otel-collector:
     image: otel/opentelemetry-collector:0.88.0
     restart: always
-    command: ["--config=/etc/otel-collector-config.yaml"]
+    command:
+      - "--config=/etc/otel/otel-collector-config.yaml"
     volumes:
-      - ./deployments/otel/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+      - ./otel:/etc/otel
     ports:
       - "1888:1888"   # pprof extension
-      - "8888:8888"   # Prometheus metrics exposed by the collector
+      - "8888:8888"   # Prometheus' metrics exposed by the collector
       - "8889:8889"   # Prometheus exporter metrics
       - "13133:13133" # health_check extension
       - "4317:4317"   # OTLP gRPC receiver
       - "55679:55679" # zpages extension
     depends_on:
       - jaeger-all-in-one
+
 volumes:
   prom_data:

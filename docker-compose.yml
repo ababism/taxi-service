@@ -59,7 +59,7 @@ services:
       context: './'
       dockerfile: 'location.Dockerfile'
     ports:
-      - "9090:9090"
+      - "8084:8084"
     depends_on:
       location_db:
         condition: service_healthy

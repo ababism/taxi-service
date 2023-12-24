@@ -31,7 +31,7 @@ http:
   write_timeout: "1s"
 
 location_client:
-  uri: "http://localhost:9090"
+  uri: "http://localhost:8084"
 
 mongo:
   database: driver
@@ -49,3 +49,7 @@ kafka_reader:
   id_group: "TODO_id_group_here"
   min_bytes: 1
   max_bytes: 2048
+
+tracer:
+  enable: false
+  exp_target: "jaeger-all-in-one:4317"

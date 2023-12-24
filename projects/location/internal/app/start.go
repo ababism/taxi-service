@@ -3,10 +3,14 @@ package app
 import (
 	"context"
 	"fmt"
+	ginzap "github.com/gin-contrib/zap"
 	"gitlab/ArtemFed/mts-final-taxi/pkg/graceful_shutdown"
 	httpServer "gitlab/ArtemFed/mts-final-taxi/pkg/http_server"
+	"gitlab/ArtemFed/mts-final-taxi/pkg/metrics"
 	myHttp "gitlab/ArtemFed/mts-final-taxi/projects/location/internal/handler"
 	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/handler/generated"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
+	"time"
 )
 
 // Start - Единая точка запуска приложения
@@ -26,16 +30,13 @@ func (a *App) startHTTPServer(ctx context.Context) {
 	router := httpServer.NewRouter()
 
 	// Добавляем системные роуты
-	//router.WithHandleGET("/metrics", metrics.HandleFunc())
+	router.WithHandleGET("/metrics", metrics.HandleFunc())
 
-	//tp := trace.NewTracerProvider()
-
-	// TODO Add tracer shutdown
-	//middlewareTracer := generated.MiddlewareFunc(otelgin.Middleware(a.cfg.App.Name, otelgin.WithTracerProvider(tp)))
-	//middlewareGinZap := generated.MiddlewareFunc(ginzap.Ginzap(a.logger, time.RFC3339, true))
+	middlewareTracer := generated.MiddlewareFunc(otelgin.Middleware(a.cfg.App.Name, otelgin.WithTracerProvider(a.tracerProvider)))
+	middlewareGinZap := generated.MiddlewareFunc(ginzap.Ginzap(a.logger, time.RFC3339, true))
 	middlewares := []generated.MiddlewareFunc{
-		//middlewareTracer,
-		//middlewareGinZap,
+		middlewareTracer,
+		middlewareGinZap,
 	}
 
 	// Добавляем роуты api

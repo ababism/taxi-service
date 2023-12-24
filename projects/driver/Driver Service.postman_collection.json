@@ -1,0 +1,714 @@
+{
+	"info": {
+		"_postman_id": "ab698a0b-c912-43a6-9abe-4fa18030eea7",
+		"name": "Driver Service",
+		"description": "Отвечает за управление поездкой со стороны водителя (принятие, отмена, получение заказов)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27149950",
+		"_collection_link": "https://dark-meadow-298813.postman.co/workspace/mts-taxi~fe556079-4e57-46d9-a30b-8f39a81c5ca8/collection/27149950-ab698a0b-c912-43a6-9abe-4fa18030eea7?action=share&source=collection_link&creator=27149950"
+	},
+	"item": [
+		{
+			"name": "trips",
+			"item": [
+				{
+					"name": "{trip_id}",
+					"item": [
+						{
+							"name": "cancel",
+							"item": [
+								{
+									"name": "Cancel trip",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"description": "(Required) ",
+												"key": "user_id",
+												"value": "<uuid>"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/trips/:trip_id/cancel?reason=<string>",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"trips",
+												":trip_id",
+												"cancel"
+											],
+											"query": [
+												{
+													"key": "reason",
+													"value": "<string>",
+													"description": "Reason for trip cancellation"
+												}
+											],
+											"variable": [
+												{
+													"key": "trip_id",
+													"value": "<uuid>",
+													"description": "(Required) ID of created trip"
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "Success operation",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"description": "(Required) ",
+														"key": "user_id",
+														"value": "<uuid>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/trips/:trip_id/cancel?reason=<string>",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"trips",
+														":trip_id",
+														"cancel"
+													],
+													"query": [
+														{
+															"key": "reason",
+															"value": "<string>",
+															"description": "Reason for trip cancellation"
+														}
+													],
+													"variable": [
+														{
+															"key": "trip_id"
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": ""
+										},
+										{
+											"name": "trip not found",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"description": "(Required) ",
+														"key": "user_id",
+														"value": "<uuid>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/trips/:trip_id/cancel?reason=<string>",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"trips",
+														":trip_id",
+														"cancel"
+													],
+													"query": [
+														{
+															"key": "reason",
+															"value": "<string>",
+															"description": "Reason for trip cancellation"
+														}
+													],
+													"variable": [
+														{
+															"key": "trip_id"
+														}
+													]
+												}
+											},
+											"status": "Not Found",
+											"code": 404,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": ""
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "accept",
+							"item": [
+								{
+									"name": "Accept trip",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"description": "(Required) ",
+												"key": "user_id",
+												"value": "<uuid>"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/trips/:trip_id/accept",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"trips",
+												":trip_id",
+												"accept"
+											],
+											"variable": [
+												{
+													"key": "trip_id",
+													"value": "<uuid>",
+													"description": "(Required) ID of accepted trip"
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "Success operation",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"description": "(Required) ",
+														"key": "user_id",
+														"value": "<uuid>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/trips/:trip_id/accept",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"trips",
+														":trip_id",
+														"accept"
+													],
+													"variable": [
+														{
+															"key": "trip_id"
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": ""
+										},
+										{
+											"name": "trip not found",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"description": "(Required) ",
+														"key": "user_id",
+														"value": "<uuid>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/trips/:trip_id/accept",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"trips",
+														":trip_id",
+														"accept"
+													],
+													"variable": [
+														{
+															"key": "trip_id"
+														}
+													]
+												}
+											},
+											"status": "Not Found",
+											"code": 404,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": ""
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "start",
+							"item": [
+								{
+									"name": "Start trip",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"description": "(Required) ",
+												"key": "user_id",
+												"value": "<uuid>"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/trips/:trip_id/start",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"trips",
+												":trip_id",
+												"start"
+											],
+											"variable": [
+												{
+													"key": "trip_id",
+													"value": "<uuid>",
+													"description": "(Required) ID of started trip"
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "Success operation",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"description": "(Required) ",
+														"key": "user_id",
+														"value": "<uuid>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/trips/:trip_id/start",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"trips",
+														":trip_id",
+														"start"
+													],
+													"variable": [
+														{
+															"key": "trip_id"
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": ""
+										},
+										{
+											"name": "trip not found",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"description": "(Required) ",
+														"key": "user_id",
+														"value": "<uuid>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/trips/:trip_id/start",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"trips",
+														":trip_id",
+														"start"
+													],
+													"variable": [
+														{
+															"key": "trip_id"
+														}
+													]
+												}
+											},
+											"status": "Not Found",
+											"code": 404,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": ""
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "end",
+							"item": [
+								{
+									"name": "End trip",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"description": "(Required) ",
+												"key": "user_id",
+												"value": "<uuid>"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/trips/:trip_id/end",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"trips",
+												":trip_id",
+												"end"
+											],
+											"variable": [
+												{
+													"key": "trip_id",
+													"value": "<uuid>",
+													"description": "(Required) ID of trip"
+												}
+											]
+										}
+									},
+									"response": [
+										{
+											"name": "Success operation",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"description": "(Required) ",
+														"key": "user_id",
+														"value": "<uuid>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/trips/:trip_id/end",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"trips",
+														":trip_id",
+														"end"
+													],
+													"variable": [
+														{
+															"key": "trip_id"
+														}
+													]
+												}
+											},
+											"status": "OK",
+											"code": 200,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": ""
+										},
+										{
+											"name": "trip not found",
+											"originalRequest": {
+												"method": "POST",
+												"header": [
+													{
+														"description": "(Required) ",
+														"key": "user_id",
+														"value": "<uuid>"
+													}
+												],
+												"url": {
+													"raw": "{{baseUrl}}/trips/:trip_id/end",
+													"host": [
+														"{{baseUrl}}"
+													],
+													"path": [
+														"trips",
+														":trip_id",
+														"end"
+													],
+													"variable": [
+														{
+															"key": "trip_id"
+														}
+													]
+												}
+											},
+											"status": "Not Found",
+											"code": 404,
+											"_postman_previewlanguage": "text",
+											"header": [],
+											"cookie": [],
+											"body": ""
+										}
+									]
+								}
+							]
+						},
+						{
+							"name": "Get trip by ID",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"description": "(Required) ",
+										"key": "user_id",
+										"value": "550e8400-e29b-41d4-a716-446655440000"
+									},
+									{
+										"key": "Accept",
+										"value": "application:json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/trips/:trip_id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"trips",
+										":trip_id"
+									],
+									"variable": [
+										{
+											"key": "trip_id",
+											"value": "550e8400-e29b-41d4-a716-446655440000",
+											"description": "(Required) ID of created trip"
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success operation",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"description": "(Required) ",
+												"key": "user_id",
+												"value": "<uuid>"
+											},
+											{
+												"key": "Accept",
+												"value": "application:json"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/trips/:trip_id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"trips",
+												":trip_id"
+											],
+											"variable": [
+												{
+													"key": "trip_id"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application:json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"id\": \"<uuid>\",\n  \"driver_id\": \"<string>\",\n  \"from\": {\n    \"lat\": \"<number>\",\n    \"lng\": \"<number>\"\n  },\n  \"to\": {\n    \"lat\": \"<number>\",\n    \"lng\": \"<number>\"\n  },\n  \"price\": {\n    \"amount\": \"<number>\",\n    \"currency\": \"<string>\"\n  },\n  \"status\": \"DRIVER_SEARCH\"\n}"
+								},
+								{
+									"name": "Incorrect trip id",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"description": "(Required) ",
+												"key": "user_id",
+												"value": "<uuid>"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/trips/:trip_id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"trips",
+												":trip_id"
+											],
+											"variable": [
+												{
+													"key": "trip_id"
+												}
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "text",
+									"header": [],
+									"cookie": [],
+									"body": ""
+								},
+								{
+									"name": "trip not found",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"description": "(Required) ",
+												"key": "user_id",
+												"value": "<uuid>"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/trips/:trip_id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"trips",
+												":trip_id"
+											],
+											"variable": [
+												{
+													"key": "trip_id"
+												}
+											]
+										}
+									},
+									"status": "Not Found",
+									"code": 404,
+									"_postman_previewlanguage": "text",
+									"header": [],
+									"cookie": [],
+									"body": ""
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "List trips",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"description": "(Required) ",
+								"key": "user_id",
+								"value": "<uuid>"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/trips",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"trips"
+							]
+						},
+						"description": "List trips"
+					},
+					"response": [
+						{
+							"name": "Success operation",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"description": "(Required) ",
+										"key": "user_id",
+										"value": "<uuid>"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/trips",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"trips"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "[\n  {\n    \"id\": \"<uuid>\",\n    \"driver_id\": \"<string>\",\n    \"from\": {\n      \"lat\": \"<number>\",\n      \"lng\": \"<number>\"\n    },\n    \"to\": {\n      \"lat\": \"<number>\",\n      \"lng\": \"<number>\"\n    },\n    \"price\": {\n      \"amount\": \"<number>\",\n      \"currency\": \"<string>\"\n    },\n    \"status\": \"STARTED\"\n  },\n  {\n    \"id\": \"<uuid>\",\n    \"driver_id\": \"<string>\",\n    \"from\": {\n      \"lat\": \"<number>\",\n      \"lng\": \"<number>\"\n    },\n    \"to\": {\n      \"lat\": \"<number>\",\n      \"lng\": \"<number>\"\n    },\n    \"price\": {\n      \"amount\": \"<number>\",\n      \"currency\": \"<string>\"\n    },\n    \"status\": \"DRIVER_SEARCH\"\n  }\n]"
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080/api/v1"
+		}
+	]
+}
