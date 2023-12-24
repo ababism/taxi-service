@@ -11,16 +11,22 @@ import (
 	"go.uber.org/zap"
 )
 
-var _ adapters.DriverService = driverService{}
+var _ adapters.DriverService = &driverService{}
 
 type driverService struct {
 	r              adapters.DriverRepository
 	locationClient adapters.LocationClient
-	tripStatuses   domain.TripStatusCollection
+}
+
+func NewDriverService(driverRepository adapters.DriverRepository, locationClient adapters.LocationClient) adapters.DriverService {
+	return &driverService{
+		r:              driverRepository,
+		locationClient: locationClient,
+	}
 }
 
 // GetTripsByStatus returns all trips with the given status
-func (s driverService) GetTripsByStatus(ctx context.Context, status domain.TripStatus) ([]domain.Trip, error) {
+func (s *driverService) GetTripsByStatus(ctx context.Context, status domain.TripStatus) ([]domain.Trip, error) {
 	logger := zapctx.Logger(ctx)
 
 	tr := global.Tracer(domain.ServiceName)
@@ -36,7 +42,7 @@ func (s driverService) GetTripsByStatus(ctx context.Context, status domain.TripS
 	return trips, nil
 }
 
-func (s driverService) GetTripByID(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID) (*domain.Trip, error) {
+func (s *driverService) GetTripByID(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID) (*domain.Trip, error) {
 	logger := zapctx.Logger(ctx)
 
 	tr := global.Tracer(domain.ServiceName)
@@ -47,7 +53,7 @@ func (s driverService) GetTripByID(ctx context.Context, driverId uuid.UUID, trip
 	trip, err := s.r.GetTripByID(newCtx, tripId)
 	if err != nil {
 		logger.Error("driver-service: get trip from repository")
-		return nil, domain.FilterErrors(err)
+		return nil, err
 	}
 	if trip.DriverId != nil && *trip.DriverId != driverId.String() {
 		return nil, errors.Wrap(domain.ErrAccessDenied, "trip driver id does not match passed id")
@@ -55,8 +61,25 @@ func (s driverService) GetTripByID(ctx context.Context, driverId uuid.UUID, trip
 	return trip, err
 }
 
+// InsertTrip inserts a trip
+func (s *driverService) InsertTrip(ctx context.Context, trip domain.Trip) error {
+	log := zapctx.Logger(ctx)
+
+	tr := global.Tracer(domain.ServiceName)
+	newCtx, span := tr.Start(ctx, "driver.service: InsertTrip")
+	defer span.End()
+
+	err := s.r.InsertTrip(newCtx, trip)
+	if err != nil {
+		log.Error("driver-service: insert trip in repository", zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
 // UpdateTrip updates all fields of the given trip in the service layer
-func (s driverService) UpdateTrip(ctx context.Context, tripId uuid.UUID, updatedTrip domain.Trip) error {
+func (s *driverService) UpdateTrip(ctx context.Context, tripId uuid.UUID, updatedTrip domain.Trip) error {
 	logger := zapctx.Logger(ctx)
 
 	tr := global.Tracer(domain.ServiceName)
@@ -67,13 +90,13 @@ func (s driverService) UpdateTrip(ctx context.Context, tripId uuid.UUID, updated
 	err := s.r.UpdateTrip(newCtx, tripId, updatedTrip)
 	if err != nil {
 		logger.Error("driver-service: update trip in repository", zap.Error(err))
-		return domain.FilterErrors(err)
+		return err
 	}
 
 	return nil
 }
 
-func (s driverService) AcceptTrip(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID) error {
+func (s *driverService) AcceptTrip(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID) error {
 	logger := zapctx.Logger(ctx)
 
 	tr := global.Tracer(domain.ServiceName)
@@ -85,10 +108,10 @@ func (s driverService) AcceptTrip(ctx context.Context, driverId uuid.UUID, tripI
 	trip, err := s.r.GetTripByID(newCtx, tripId)
 	if err != nil {
 		logger.Error("can't get trip from repository")
-		return domain.FilterErrors(err)
+		return err
 	}
 
-	if trip.Status == nil || *trip.Status != s.tripStatuses.GetDriverSearch() {
+	if trip.Status == nil || *trip.Status != domain.TripStatuses.GetDriverSearch() {
 		return errors.Wrap(domain.ErrAccessDenied, "trip doesn't need driver")
 	}
 	// TODO Kafka <- acceptTrip
@@ -96,7 +119,7 @@ func (s driverService) AcceptTrip(ctx context.Context, driverId uuid.UUID, tripI
 	return nil
 }
 
-func (s driverService) CancelTrip(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID, reason *string) error {
+func (s *driverService) CancelTrip(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID, reason *string) error {
 	logger := zapctx.Logger(ctx)
 
 	tr := global.Tracer(domain.ServiceName)
@@ -108,9 +131,9 @@ func (s driverService) CancelTrip(ctx context.Context, driverId uuid.UUID, tripI
 	trip, err := s.r.GetTripByID(newCtx, tripId)
 	if err != nil {
 		logger.Error("can't get trip from repository")
-		return domain.FilterErrors(err)
+		return err
 	}
-	if trip.Status == nil || *trip.Status == s.tripStatuses.GetDriverSearch() {
+	if trip.Status == nil || *trip.Status == domain.TripStatuses.GetDriverSearch() {
 		return errors.Wrap(domain.ErrAccessDenied, "trip hasn't connected with driver yet")
 	}
 	if trip.DriverId != nil && *trip.DriverId != driverId.String() {
@@ -121,7 +144,7 @@ func (s driverService) CancelTrip(ctx context.Context, driverId uuid.UUID, tripI
 	return nil
 }
 
-func (s driverService) StartTrip(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID) error {
+func (s *driverService) StartTrip(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID) error {
 	logger := zapctx.Logger(ctx)
 
 	tr := global.Tracer(domain.ServiceName)
@@ -133,10 +156,10 @@ func (s driverService) StartTrip(ctx context.Context, driverId uuid.UUID, tripId
 	trip, err := s.r.GetTripByID(newCtx, tripId)
 	if err != nil {
 		logger.Error("can't get trip from repository")
-		return domain.FilterErrors(err)
+		return err
 	}
 	// TODO ask about *trip.Status != s.tripStatuses.GetOnPosition()
-	if trip.Status == nil || *trip.Status != s.tripStatuses.GetOnPosition() || *trip.Status != s.tripStatuses.GetDriverFound() {
+	if trip.Status == nil || *trip.Status != domain.TripStatuses.GetOnPosition() || *trip.Status != domain.TripStatuses.GetDriverFound() {
 		return errors.Wrap(domain.ErrAccessDenied, "trip hasn't connected with driver yet")
 	}
 	if trip.DriverId != nil && *trip.DriverId != driverId.String() {
@@ -148,7 +171,7 @@ func (s driverService) StartTrip(ctx context.Context, driverId uuid.UUID, tripId
 	return nil
 }
 
-func (s driverService) EndTrip(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID) error {
+func (s *driverService) EndTrip(ctx context.Context, driverId uuid.UUID, tripId uuid.UUID) error {
 	logger := zapctx.Logger(ctx)
 
 	tr := global.Tracer(domain.ServiceName)
@@ -160,10 +183,10 @@ func (s driverService) EndTrip(ctx context.Context, driverId uuid.UUID, tripId u
 	trip, err := s.r.GetTripByID(newCtx, tripId)
 	if err != nil {
 		logger.Error("can't get trip from repository")
-		return domain.FilterErrors(err)
+		return err
 	}
 	// TODO REDO ask about *trip.Status != s.tripStatuses.GetOnPosition()
-	if trip.Status == nil || *trip.Status != s.tripStatuses.GetStarted() {
+	if trip.Status == nil || *trip.Status != domain.TripStatuses.GetStarted() {
 		return errors.Wrap(domain.ErrAccessDenied, "trip hasn't connected with driver yet")
 	}
 	if trip.DriverId != nil && *trip.DriverId != driverId.String() {
@@ -175,7 +198,7 @@ func (s driverService) EndTrip(ctx context.Context, driverId uuid.UUID, tripId u
 }
 
 // Long poll
-func (s driverService) GetTrips(ctx context.Context, driverId uuid.UUID) ([]domain.Trip, error) {
+func (s *driverService) GetTrips(ctx context.Context, driverId uuid.UUID) ([]domain.Trip, error) {
 	logger := zapctx.Logger(ctx)
 
 	tr := global.Tracer(domain.ServiceName)
@@ -203,16 +226,25 @@ func (s driverService) GetTrips(ctx context.Context, driverId uuid.UUID) ([]doma
 	//trips, err := s.locationClient.GetDrivers(newCtx, driverId)
 	//if err != nil {
 	//	logger.Error("driver-service: EndTrip")
-	//	return nil, domain.FilterErrors(err)
+	//	return nil, err
 	//}
 
 	return trips, nil
 }
 
-func NewDriverService(driverRepository adapters.DriverRepository, locationClient adapters.LocationClient, tsc domain.TripStatusCollection) adapters.DriverService {
-	return &driverService{
-		r:              driverRepository,
-		locationClient: locationClient,
-		tripStatuses:   tsc,
+// UpdateTripStatus changes the status of the specified trip in the service layer
+func (s *driverService) UpdateTripStatus(ctx context.Context, tripId uuid.UUID, status domain.TripStatus) error {
+	log := zapctx.Logger(ctx)
+
+	tr := global.Tracer(domain.ServiceName)
+	newCtx, span := tr.Start(ctx, "driver.service: UpdateTripStatus")
+	defer span.End()
+
+	err := s.r.ChangeTripStatus(newCtx, tripId, status)
+	if err != nil {
+		log.Error("driver-service: update trip status in repository", zap.Error(err))
+		return domain.FilterErrors(err)
 	}
+
+	return nil
 }
