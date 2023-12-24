@@ -5,7 +5,6 @@ import (
 	"sync"
 )
 
-// TODO move to separate package
 var IncomingTrips *TripMap
 
 // TripMap Sync
@@ -20,7 +19,6 @@ func InitTripMap() {
 	}
 }
 
-// Если забудут указать
 func init() {
 	IncomingTrips = &TripMap{
 		trips: make(map[*string]chan *uuid.UUID),
@@ -44,5 +42,4 @@ func (tm *TripMap) DeleteTripChannel(driverID *string) {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
 	delete(tm.trips, driverID)
-	return
 }

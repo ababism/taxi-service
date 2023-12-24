@@ -3,11 +3,11 @@ package mongo
 import (
 	"context"
 	"fmt"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/mongo/models"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/service/adapters"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/repository/mongo/models"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/service/adapters"
 	"go.uber.org/zap"
 
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/mongo/migrate"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/repository/mongo/migrate"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"

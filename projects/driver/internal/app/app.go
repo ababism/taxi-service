@@ -4,21 +4,21 @@ import (
 	"context"
 	"fmt"
 	"github.com/juju/zaputil/zapctx"
-	"gitlab/ArtemFed/mts-final-taxi/pkg/graceful_shutdown"
-	"gitlab/ArtemFed/mts-final-taxi/pkg/metrics"
-	"gitlab/ArtemFed/mts-final-taxi/pkg/mylogger"
-	"gitlab/ArtemFed/mts-final-taxi/pkg/mytracer"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/config"
-	kafkaConsumer "gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/daemons/kafkaConsumer"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/daemons/scraper"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
-	driverGenerated "gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/handler/generated"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/kafka_producer"
-	locationClient "gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/location_client"
-	locationClientGen "gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/location_client/generated"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/mongo"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/service"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/service/adapters"
+	"gitlab.com/ArtemFed/mts-final-taxi/pkg/graceful_shutdown"
+	"gitlab.com/ArtemFed/mts-final-taxi/pkg/metrics"
+	"gitlab.com/ArtemFed/mts-final-taxi/pkg/mylogger"
+	"gitlab.com/ArtemFed/mts-final-taxi/pkg/mytracer"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/config"
+	kafkaConsumer "gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/daemons/kafkaConsumer"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/daemons/scraper"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
+	driverGenerated "gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/handler/generated"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/repository/kafkaproducer"
+	locationClient "gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/repository/locationclient"
+	locationClientGen "gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/repository/locationclient/generated"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/repository/mongo"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/service"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/service/adapters"
 	"go.opentelemetry.io/otel/sdk/trace"
 	"go.uber.org/zap"
 )
@@ -28,20 +28,17 @@ type App struct {
 	address        string
 	logger         *zap.Logger
 	tracerProvider *trace.TracerProvider
-
-	service adapters.DriverService
+	service        adapters.DriverService
 }
 
 func NewApp(cfg *config.Config) (*App, error) {
+	startCtx := context.Background()
+
+	// Инициализируем логгер
 	logger, err := mylogger.InitLogger(cfg.Logger, cfg.App.Name)
 	if err != nil {
 		return nil, err
 	}
-	logger.Info("Init Logger – success")
-
-	startCtx := context.Background()
-	ctx := zapctx.WithLogger(startCtx, logger)
-
 	// Чистим кэш логгера при shutdown
 	graceful_shutdown.AddCallback(
 		&graceful_shutdown.Callback{
@@ -50,6 +47,9 @@ func NewApp(cfg *config.Config) (*App, error) {
 				return logger.Sync()
 			},
 		})
+	logger.Info("Init Logger – success")
+
+	ctx := zapctx.WithLogger(startCtx, logger)
 
 	// Importing constants from driver openApi generated
 	driverGenerated.ScrapeStatusesConstants()
@@ -57,6 +57,7 @@ func NewApp(cfg *config.Config) (*App, error) {
 	// Инициализируем словарь ивентов
 	domain.InitTripMap()
 
+	// Инициализируем трейсер
 	tp, err := mytracer.InitTracer(cfg.Tracer, cfg.App)
 	if err != nil {
 		return nil, err
@@ -74,7 +75,7 @@ func NewApp(cfg *config.Config) (*App, error) {
 		})
 	logger.Info("Init Tracer – success")
 
-	// Prometheus metrics
+	// Инициализируем Prometheus
 	metrics.InitOnce(cfg.Metrics, logger, metrics.AppInfo{
 		Name:        cfg.App.Name,
 		Environment: cfg.App.Environment,
@@ -82,8 +83,9 @@ func NewApp(cfg *config.Config) (*App, error) {
 	})
 	logger.Info("Init Metrics – success")
 
-	// MongoDB repository
 	driverRepo := mongo.NewDriverRepository(logger)
+
+	// Инициализируем MongoDB
 	mongoDisconnect, err := driverRepo.Connect(ctx, cfg.Mongo, cfg.MigrationsMongo)
 	if err != nil {
 		logger.Fatal("error while connecting to Mongo DB:", zap.Error(err))
@@ -97,7 +99,7 @@ func NewApp(cfg *config.Config) (*App, error) {
 		})
 	logger.Info("Mongo connect – success")
 
-	// Location microservice client repository layer
+	// Инициализируем Location microservice client repository layer
 	client, err := locationClientGen.NewClientWithResponses(cfg.LocationClient.Uri)
 	if err != nil {
 		logger.Fatal("cannot initialize generated location client:", zap.Error(err))
@@ -107,10 +109,12 @@ func NewApp(cfg *config.Config) (*App, error) {
 	logger.Info("Init Location client – success")
 
 	// Kafka repository layer
-	kafkaClient := kafka_producer.NewKafkaProducer(cfg.KafkaWriter)
+	kafkaClient := kafkaproducer.NewKafkaProducer(cfg.KafkaWriter)
 
 	// Service layer
 	driverService := service.NewDriverService(driverRepo, newLocationClient, kafkaClient)
+
+	logger.Info(fmt.Sprintf("Init %s – success", cfg.App.Name))
 
 	// Scraper for event calling
 	scr := scraper.NewScraper(*logger, driverService)
@@ -128,18 +132,16 @@ func NewApp(cfg *config.Config) (*App, error) {
 	scr.Start(scrapeInterval)
 	logger.Info("Init Scraper – success")
 
-	// Kafka transport layer
-	kafkaCumsumer := kafkaConsumer.NewKafkaConsumer(cfg.KafkaReader, driverService)
-	kafkaConsumerClose := kafkaCumsumer.Start(ctx)
+	// Kafka transport layer (тихо шифером шурша... крыша едет не спеша)
+	kakafkaCumsumer := kafkaConsumer.NewKafkaConsumer(cfg.KafkaReader, driverService)
+	kakafkaCumsumerClose := kakafkaCumsumer.Start(ctx)
 	graceful_shutdown.AddCallback(&graceful_shutdown.Callback{
-		Name: "kafkaConsumer Close",
+		Name: "KakafkaCumsumer Close",
 		FnCtx: func(ctx context.Context) error {
-			return kafkaConsumerClose(kafkaCumsumer)
+			return kakafkaCumsumerClose(kakafkaCumsumer)
 		},
 	})
 	logger.Info("Init Kafka – success")
-
-	logger.Info("Init Driver – success")
 
 	address := fmt.Sprintf(":%d", cfg.Http.Port)
 

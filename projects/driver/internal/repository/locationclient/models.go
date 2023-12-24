@@ -1,4 +1,4 @@
-package location_client
+package locationclient
 
 type Error struct {
 	Message string `json:"message"`

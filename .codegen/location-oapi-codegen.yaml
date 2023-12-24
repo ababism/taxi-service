@@ -1,6 +1,6 @@
 # location-oapi-codegen.yaml for location api + server
 
-output: projects/location/internal/handler/generated/location-oapi-codegen.go
+output: projects/location/internal/handler/generated/locationCodegen.go
 package: generated
 generate:
   - types

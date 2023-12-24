@@ -4,15 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/handler/http/models"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/handler/http/models"
 	"go.uber.org/zap"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
 )
 
-// TODO maybe c.AbortWithStatusJSON ?
 func AbortWithBadResponse(c *gin.Context, logger *zap.Logger, statusCode int, message string) {
 	logger.Debug(fmt.Sprintf("%s: %d %s", c.Request.URL, statusCode, message))
 	c.AbortWithStatusJSON(statusCode, models.Error{Message: message})

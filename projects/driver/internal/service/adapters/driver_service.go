@@ -3,7 +3,7 @@ package adapters
 import (
 	"context"
 	"github.com/google/uuid"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
 )
 
 type DriverService interface {

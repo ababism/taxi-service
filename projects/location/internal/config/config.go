@@ -2,14 +2,14 @@ package config
 
 import (
 	"github.com/spf13/viper"
-	"gitlab/ArtemFed/mts-final-taxi/pkg/app"
-	configLib "gitlab/ArtemFed/mts-final-taxi/pkg/config"
-	"gitlab/ArtemFed/mts-final-taxi/pkg/graceful_shutdown"
-	"gitlab/ArtemFed/mts-final-taxi/pkg/http_server"
-	"gitlab/ArtemFed/mts-final-taxi/pkg/metrics"
-	"gitlab/ArtemFed/mts-final-taxi/pkg/mylogger"
-	"gitlab/ArtemFed/mts-final-taxi/pkg/mytracer"
-	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/repository"
+	"gitlab.com/ArtemFed/mts-final-taxi/pkg/app"
+	configLib "gitlab.com/ArtemFed/mts-final-taxi/pkg/config"
+	"gitlab.com/ArtemFed/mts-final-taxi/pkg/graceful_shutdown"
+	"gitlab.com/ArtemFed/mts-final-taxi/pkg/http_server"
+	"gitlab.com/ArtemFed/mts-final-taxi/pkg/metrics"
+	"gitlab.com/ArtemFed/mts-final-taxi/pkg/mylogger"
+	"gitlab.com/ArtemFed/mts-final-taxi/pkg/mytracer"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/location/internal/repository"
 	"log"
 )
 

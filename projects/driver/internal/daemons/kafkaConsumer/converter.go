@@ -2,7 +2,7 @@ package kafkaconsumer
 
 import (
 	"github.com/google/uuid"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
 )
 
 func ParseUUID(strUUID string) (uuid.UUID, error) {

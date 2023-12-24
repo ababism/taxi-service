@@ -8,10 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/config"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/handler/generated"
-	driverAPI "gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/handler/http/driver_api"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/service/adapters"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/config"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/handler/generated"
+	driverAPI "gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/handler/http/driver_api"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/service/adapters"
 )
 
 const (

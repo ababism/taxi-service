@@ -1,13 +1,14 @@
-package kafka_producer
+package kafkaproducer
 
 import (
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
 	"time"
 )
 
 func ToCommandTypeKafka(commandType domain.CommandType) CommandType {
 	return CommandType(commandType)
 }
+
 func ToTripCommand(trip domain.Trip, commandType domain.CommandType, reason *string) TripCommand {
 	command := TripCommand{
 		DriverId:        *trip.DriverId,

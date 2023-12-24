@@ -5,9 +5,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/juju/zaputil/zapctx"
 	"github.com/pkg/errors"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
 
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/service/adapters"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/service/adapters"
 	global "go.opentelemetry.io/otel"
 	"go.uber.org/zap"
 )

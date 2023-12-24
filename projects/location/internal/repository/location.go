@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	openapitypes "github.com/oapi-codegen/runtime/types"
-	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/domain"
-	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/service/adapters"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/location/internal/domain"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/location/internal/service/adapters"
 	global "go.opentelemetry.io/otel"
 
 	"github.com/jmoiron/sqlx"
@@ -39,7 +39,7 @@ func NewLocalRepository(repos *sqlx.DB) adapters.LocationRepository {
 // GetDrivers получает всех водителей в заданном радиусе от точки
 func (r *locationRepository) GetDrivers(ctx context.Context, lat float32, lng float32, radius float32) ([]domain.Driver, error) {
 	tr := global.Tracer(domain.TracerName)
-	_, span := tr.Start(ctx, "[LocationRepository-GetDrivers]")
+	_, span := tr.Start(ctx, "location.repository: GetDrivers")
 	defer span.End()
 
 	// ATTENTION: Считаем, что radius в метрах
@@ -67,7 +67,7 @@ func (r *locationRepository) GetDrivers(ctx context.Context, lat float32, lng fl
 // UpdateDriverLocation Обновляет значение позиции у водителей. При отсутствии добавляет запись.
 func (r *locationRepository) UpdateDriverLocation(ctx context.Context, driverId openapitypes.UUID, lat float32, lng float32) error {
 	tr := global.Tracer(domain.TracerName)
-	_, span := tr.Start(ctx, "[LocationRepository-UpdateDriverLocation]")
+	_, span := tr.Start(ctx, "location.repository: UpdateDriverLocation")
 	defer span.End()
 
 	_, err := r.db.Exec(updateDrivers, driverId, lat, lng)

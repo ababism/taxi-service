@@ -2,11 +2,11 @@ package http
 
 import (
 	"fmt"
-	"gitlab/ArtemFed/mts-final-taxi/pkg/app"
-	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/config"
-	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/handler/generated"
-	locationAPI "gitlab/ArtemFed/mts-final-taxi/projects/location/internal/handler/location_api"
-	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/service/adapters"
+	"gitlab.com/ArtemFed/mts-final-taxi/pkg/app"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/location/internal/config"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/location/internal/handler/generated"
+	locationAPI "gitlab.com/ArtemFed/mts-final-taxi/projects/location/internal/handler/location"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/location/internal/service/adapters"
 	"strings"
 
 	"github.com/gin-gonic/gin"

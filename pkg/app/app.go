@@ -12,14 +12,13 @@ type Config struct {
 
 const (
 	production = "production"
-	staging    = "staging"
 	local      = "local"
 )
 
 func InitInfo(buildVersion string) *Config {
 	info := &Config{}
 	info.Version = buildVersion
-	// TODO Ставим флаги
+	// TODO Поставить флаги
 	//config.StringVar(&info.Name, "app.name", "unknown app", "description")
 	//config.StringVar(&info.Environment, ".env", "local", "description")
 	//config.StringVar(&info.Owner, "app.owner", "unknown", "description")
@@ -35,11 +34,6 @@ func (i *Config) Release() string {
 // IsProduction defines is current .env a "production"
 func (i *Config) IsProduction() bool {
 	return i.Environment == production
-}
-
-// IsStaging defines is current .env a "staging"
-func (i *Config) IsStaging() bool {
-	return i.Environment == staging
 }
 
 // IsLocal defines is current .env a "local"

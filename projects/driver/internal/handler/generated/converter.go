@@ -1,6 +1,6 @@
 package generated
 
-import "gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
+import "gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
 
 func ToTripStatusDomain(ts TripStatus) domain.TripStatus {
 	converted := domain.TripStatus(ts)

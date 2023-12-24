@@ -3,7 +3,7 @@ package mytracer
 import (
 	"context"
 	"fmt"
-	"gitlab/ArtemFed/mts-final-taxi/pkg/app"
+	"gitlab.com/ArtemFed/mts-final-taxi/pkg/app"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	stdout "go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
@@ -28,26 +28,26 @@ func InitTracer(cfg *Config, appCfg *app.Config) (*sdktrace.TracerProvider, erro
 		log.Fatal(err)
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
-	conn, err := grpc.DialContext(ctx,
-		cfg.ExporterTarget,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithBlock(),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create gRPC connection to collector: %w", err)
-	}
-
 	var batcher sdktrace.TracerProviderOption
+	log.Println(cfg.ExporterTarget)
 	if cfg.Enable {
+		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		defer cancel()
+
+		conn, err := grpc.DialContext(ctx,
+			cfg.ExporterTarget,
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithBlock(),
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create gRPC connection to collector: %w", err)
+		}
+
 		exp, err := otlptracegrpc.New(ctx, otlptracegrpc.WithGRPCConn(conn))
 		if err != nil {
 			return nil, fmt.Errorf("failed to create trace exporter: %w", err)
 		}
 		batcher = sdktrace.WithBatcher(exp)
-
 	} else {
 		exp, err := stdout.New(stdout.WithPrettyPrint())
 		if err != nil {
@@ -55,10 +55,16 @@ func InitTracer(cfg *Config, appCfg *app.Config) (*sdktrace.TracerProvider, erro
 		}
 		batcher = sdktrace.WithBatcher(exp)
 	}
+	exp, err := stdout.New(stdout.WithPrettyPrint())
+	if err != nil {
+		return nil, fmt.Errorf("failed to create trace exporter: %w", err)
+	}
+	batcher2 := sdktrace.WithBatcher(exp)
 
 	tp := sdktrace.NewTracerProvider(
 		sdktrace.WithSampler(sdktrace.AlwaysSample()),
 		batcher,
+		batcher2,
 		sdktrace.WithResource(res),
 	)
 	otel.SetTracerProvider(tp)

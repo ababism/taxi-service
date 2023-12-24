@@ -42,7 +42,7 @@ type CreatedTripData struct {
 	Status  string        `json:"status"`
 }
 
-// TODO тут было float64, но мне надо float32
+// TODO тут было float64 по контракту kafka, но мне надо float32 по контракту location (кривая стркутура?)
 type LatLngLiteral struct {
 	Lat float32 `json:"lat"`
 	Lng float32 `json:"lng"`

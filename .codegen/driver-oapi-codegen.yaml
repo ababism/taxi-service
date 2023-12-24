@@ -1,6 +1,6 @@
 # driver-oapi-codegen.yaml for driver api + server
 
-output: projects/driver/internal/handler/generated/driver-oapi-codegen.go
+output: projects/driver/internal/handler/generated/driverCodegen.go
 package: generated
 generate:
   - types

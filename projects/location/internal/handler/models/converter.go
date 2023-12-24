@@ -1,8 +1,8 @@
 package models
 
 import (
-	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/domain"
-	"gitlab/ArtemFed/mts-final-taxi/projects/location/internal/handler/generated"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/location/internal/domain"
+	"gitlab.com/ArtemFed/mts-final-taxi/projects/location/internal/handler/generated"
 )
 
 func ToDriverResponse(t domain.Driver) generated.Driver {

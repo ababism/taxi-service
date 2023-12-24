@@ -1,4 +1,4 @@
-package kafka_producer
+package kafkaproducer
 
 import "time"
 
