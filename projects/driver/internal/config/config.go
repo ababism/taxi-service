@@ -9,6 +9,7 @@ import (
 	"gitlab/ArtemFed/mts-final-taxi/pkg/metrics"
 	"gitlab/ArtemFed/mts-final-taxi/pkg/mylogger"
 	kafkaConsumer "gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/daemons/kafkaConsumer"
+	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/kafka_producer"
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/location_client"
 	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/mongo"
 	"log"
@@ -24,6 +25,7 @@ type Config struct {
 	Metrics          *metrics.Config               `mapstructure:"metrics"`
 	GracefulShutdown *graceful_shutdown.Config     `mapstructure:"graceful_shutdown"`
 	KafkaReader      *kafkaConsumer.Config         `mapstructure:"kafka_reader"`
+	KafkaWriter      *kafka_producer.Config        `mapstructure:"kafka_writer"`
 }
 
 func NewConfig(filePath string) (*Config, error) {

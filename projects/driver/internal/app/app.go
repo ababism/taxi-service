@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	kafkaConsumer "gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/daemons/kafkaConsumer"
+	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/kafka_producer"
 	locationClient "gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/location_client"
 	locationClientGen "gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/location_client/generated"
 	"log"
@@ -81,12 +82,20 @@ func NewApp(cfg *config.Config) (*App, error) {
 
 	// Importing constants from driver openApi generated
 	driverGenerated.ScrapeStatusesConstants()
+	kafkaClient := kafka_producer.NewKafkaProducer(cfg.KafkaWriter)
 
-	driverService := service.NewDriverService(driverRepo, newLocationClient)
+	driverService := service.NewDriverService(driverRepo, newLocationClient, kafkaClient)
 
 	logger.Info("Init Driver – success")
 
-	kafkaConsumer.NewKafkaConsumer(*cfg.KafkaReader, driverService)
+	kafkaCumsumer := kafkaConsumer.NewKafkaConsumer(cfg.KafkaReader, driverService)
+	kafkaConsumerClose := kafkaCumsumer.Start(ctx)
+	graceful_shutdown.AddCallback(&graceful_shutdown.Callback{
+		Name: "MongoClientDisconnect",
+		FnCtx: func(ctx context.Context) error {
+			return kafkaConsumerClose(kafkaCumsumer)
+		},
+	})
 
 	address := fmt.Sprintf(":%d", cfg.Http.Port)
 
