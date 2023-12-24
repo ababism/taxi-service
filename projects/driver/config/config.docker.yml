@@ -41,3 +41,11 @@ migrations_mongo:
   uri: "mongodb://mongo1:27017,mongo2:27018,mongo3:27019/driver?replicaSet=rs0&authSource=admin&readPreference=primaryPreferred"
   path: "migrations"
   enabled: true
+
+kafka_reader:
+  brokers:
+    - "TODO_broker"
+  topic: "TODO_topic_here"
+  id_group: "TODO_id_group_here"
+  min_bytes: 1
+  max_bytes: 2048

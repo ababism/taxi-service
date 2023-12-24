@@ -3,7 +3,8 @@ package app
 import (
 	"context"
 	"fmt"
-	"gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/location_client"
+	kafkaConsumer "gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/daemons/kafkaConsumer"
+	locationClient "gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/location_client"
 	locationClientGen "gitlab/ArtemFed/mts-final-taxi/projects/driver/internal/repository/location_client/generated"
 	"log"
 
@@ -61,7 +62,6 @@ func NewApp(cfg *config.Config) (*App, error) {
 	if err != nil {
 		logger.Fatal("error while connecting to Mongo DB:", zap.Error(err))
 	}
-	logger.Info("Mongo connect – success")
 	graceful_shutdown.AddCallback(
 		&graceful_shutdown.Callback{
 			Name: "MongoClientDisconnect",
@@ -69,6 +69,7 @@ func NewApp(cfg *config.Config) (*App, error) {
 				return mongoDisconnect(ctx)
 			},
 		})
+	logger.Info("Mongo connect – success")
 
 	// Location microservice client
 	client, err := locationClientGen.NewClientWithResponses(cfg.LocationClient.Uri)
@@ -76,14 +77,16 @@ func NewApp(cfg *config.Config) (*App, error) {
 		log.Fatal("cannot initialize generated location client:", zap.Error(err))
 		return nil, err
 	}
-	locationClient := location_client.NewClient(client)
+	newLocationClient := locationClient.NewClient(client)
 
 	// Importing constants from driver openApi generated
-	tripStatusCollection := driverGenerated.GetStatuses()
+	driverGenerated.ScrapeStatusesConstants()
 
-	driverService := service.NewDriverService(driverRepo, locationClient, tripStatusCollection)
+	driverService := service.NewDriverService(driverRepo, newLocationClient)
 
 	logger.Info("Init Driver – success")
+
+	kafkaConsumer.NewKafkaConsumer(*cfg.KafkaReader, driverService)
 
 	address := fmt.Sprintf(":%d", cfg.Http.Port)
 
@@ -91,7 +94,6 @@ func NewApp(cfg *config.Config) (*App, error) {
 		cfg:     cfg,
 		logger:  logger,
 		service: driverService,
-		//repo:    userRepo,
 		address: address,
 	}, nil
 }

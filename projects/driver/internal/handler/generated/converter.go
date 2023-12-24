@@ -6,8 +6,8 @@ func ToTripStatusDomain(ts TripStatus) domain.TripStatus {
 	converted := domain.TripStatus(ts)
 	return converted
 }
-func GetStatuses() domain.TripStatusCollection {
-	return domain.NewTripStatusCollection(
+func ScrapeStatusesConstants() {
+	domain.InitTripStatusCollection(
 		ToTripStatusDomain(CANCELED),
 		ToTripStatusDomain(DRIVERFOUND),
 		ToTripStatusDomain(DRIVERSEARCH),
