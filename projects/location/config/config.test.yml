@@ -1,0 +1,44 @@
+apiVersion: "1.0.0"
+
+app:
+  name: "location"
+  env: "local"
+
+logger:
+  env: "dev"
+  level: "debug"
+  outputs:
+    - "stdout"
+  error_outputs:
+    - "stderr"
+  encoding: "json"
+  sentry_dsn: ""
+  sentry_level: "error"
+
+metrics:
+  enable: false
+  dsn: ""
+
+graceful_shutdown:
+  delay: "5s"
+  wait_timeout: "10s"
+  callback_timeout: "3s"
+
+http:
+  host: "0.0.0.0"
+  port: 8086
+  read_timeout: "1s"
+  write_timeout: "1s"
+
+postgres:
+  host: "localhost"
+  port: 5444
+  username: "postgres"
+  password: "password"
+  dbname: "postgres"
+  sslmode: "disable"
+  migration: "migrations"
+
+tracer:
+  enable: false
+  exp_target: ""

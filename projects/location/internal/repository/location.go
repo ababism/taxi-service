@@ -3,10 +3,12 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"github.com/juju/zaputil/zapctx"
 	openapitypes "github.com/oapi-codegen/runtime/types"
 	"gitlab.com/ArtemFed/mts-final-taxi/projects/location/internal/domain"
 	"gitlab.com/ArtemFed/mts-final-taxi/projects/location/internal/service/adapters"
 	global "go.opentelemetry.io/otel"
+	"go.uber.org/zap"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -15,9 +17,10 @@ var _ adapters.LocationRepository = &locationRepository{}
 
 const (
 	getDriversByRadius = `
-		SELECT id, lat, lng
+		SELECT id, lat, lng, earth_distance(ll_to_earth($1, $2), ll_to_earth(lat, lng)) AS distance
 		FROM drivers_locations
-		WHERE earth_box(ll_to_earth($1, $2), $3) @> ll_to_earth(lat, lng);`
+		WHERE earth_box(ll_to_earth($1, $2), $3) @> ll_to_earth(lat, lng)
+		ORDER BY distance;`
 	//getDriversByRadius = `SELECT id, ST_X(location) as lat, ST_Y(location) as lng FROM drivers_locations WHERE ST_DWithin(location, ST_MakePoint($1, $2)::geography, $3);`
 	updateDrivers = `
 		INSERT INTO drivers_locations (id, lat, lng)
@@ -52,9 +55,10 @@ func (r *locationRepository) GetDrivers(ctx context.Context, lat float32, lng fl
 	}(rows)
 
 	var drivers []domain.Driver
+	var dist float64
 	for rows.Next() {
 		var driver domain.Driver
-		err = rows.Scan(&driver.Id, &driver.Lat, &driver.Lng)
+		err = rows.Scan(&driver.Id, &driver.Lat, &driver.Lng, &dist)
 		if err != nil {
 			return nil, err
 		}
@@ -70,6 +74,11 @@ func (r *locationRepository) UpdateDriverLocation(ctx context.Context, driverId 
 	_, span := tr.Start(ctx, "location.repository: UpdateDriverLocation")
 	defer span.End()
 
+	logger := zapctx.Logger(ctx)
 	_, err := r.db.Exec(updateDrivers, driverId, lat, lng)
-	return err
+	if err != nil {
+		logger.Error("Error while Updating Driver Location", zap.Error(err))
+		return err
+	}
+	return nil
 }
