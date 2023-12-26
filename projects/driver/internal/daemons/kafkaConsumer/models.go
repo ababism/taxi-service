@@ -2,14 +2,15 @@ package kafkaconsumer
 
 import "time"
 
-type Event struct {
-	ID              string    `json:"id"`
-	Source          string    `json:"source"`
-	Type            string    `json:"type"`
-	DataContentType string    `json:"datacontenttype"`
-	Time            time.Time `json:"time"`
-	Data            []byte    `json:"data"`
-}
+//
+//type Event struct {
+//	ID              string    `json:"id"`
+//	Source          string    `json:"source"`
+//	Type            string    `json:"type"`
+//	DataContentType string    `json:"datacontenttype"`
+//	Time            time.Time `json:"time"`
+//	Data            []byte    `json:"data"`
+//}
 
 type StatusUpdateEvent struct {
 	ID              string    `json:"id"`
@@ -42,7 +43,7 @@ type CreatedTripData struct {
 	Status  string        `json:"status"`
 }
 
-// TODO тут было float64 по контракту kafka, но мне надо float32 по контракту location (кривая стркутура?)
+// Тут было float64 по схеме kafka, но мне надо float32 по контракту location (кривая стркутура?)
 type LatLngLiteral struct {
 	Lat float32 `json:"lat"`
 	Lng float32 `json:"lng"`

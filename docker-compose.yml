@@ -9,6 +9,8 @@ services:
     ports:
       - "8080:8080"
     depends_on:
+      init-kafka:
+        condition: service_started
       mongo1:
         condition: service_healthy
       mongo2:
@@ -86,9 +88,45 @@ services:
   #    command: ["bash", "-c", "pg_isready -U postgres -d postgres && psql -U postgres -d postgres -f /location-svc/migrations/000001_init.up.sql"]
   #    volumes:
   #      - ./.database/postgres/location_data:/var/lib/postgresql/data
-
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+  kafka:
+    depends_on:
+      - zookeeper
+    container_name: kafka
+    image: wurstmeister/kafka:latest
+    ports:
+      - "9094:9094"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,OUTSIDE://0.0.0.0:9094
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+  init-kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - kafka
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      kafka-topics.sh --bootstrap-server kafka:9092 --list
+      
+      echo -e 'Creating kafka topics'
+      kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic outbound --replication-factor 1 --partitions 1
+      kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic inbound --replication-factor 1 --partitions 1
+      
+      echo -e 'Successfully created the following topics:'
+      kafka-topics.sh --bootstrap-server kafka:9092 --list
+      "
 networks:
-  host:
+  driver:
+    name: driver
 
 volumes:
   mongo1_data:
