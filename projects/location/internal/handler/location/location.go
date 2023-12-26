@@ -57,7 +57,7 @@ func (h *LocationHandler) UpdateDriverLocation(ctx *gin.Context, driverId openap
 		return
 	}
 
-	err := h.locationService.UpdateDriverLocation(ctxTraceLog, driverId, body.Lng, body.Lat)
+	err := h.locationService.UpdateDriverLocation(ctxTraceLog, driverId, body.Lat, body.Lng)
 	if err != nil {
 		CallAbortByErrorCode(ctx, h.logger, MapErrorToCode(err), err.Error())
 		return
