@@ -64,15 +64,20 @@ func (r *DriveRepository) GetTripByID(ctx context.Context, tripId uuid.UUID) (*d
 	newCtx, span := tr.Start(ctx, "driver.repository.mongo: GetTripByID")
 	defer span.End()
 
-	var trip domain.Trip
-	filter := bson.M{"trip_id": tripId}
+	var trip models.MongoTrip
+	filter := bson.M{"trip_id": tripId.String()}
 	err := r.driverCollection.FindOne(newCtx, filter).Decode(&trip)
 	if err != nil {
-		log.Error("Error fetching trip from MongoDB", zap.Error(err))
+		log.Error("error fetching trip from MongoDB", zap.Error(err))
 		return nil, err
 	}
 
-	return &trip, nil
+	res, err := models.ToDomainTripModel(trip)
+	if err != nil {
+		log.Error("error converting mongo to domain model", zap.Error(err))
+		return nil, err
+	}
+	return res, nil
 }
 
 // UpdateTrip updates all fields of the given trip in the database
@@ -83,7 +88,7 @@ func (r *DriveRepository) UpdateTrip(ctx context.Context, tripId uuid.UUID, upda
 	newCtx, span := tr.Start(ctx, "driver.repository.mongo: UpdateTrip")
 	defer span.End()
 
-	filter := bson.M{"trip_id": tripId}
+	filter := bson.M{"trip_id": tripId.String()}
 
 	updateDoc, err := bson.Marshal(updatedTrip)
 	if err != nil {
@@ -123,8 +128,8 @@ func (r *DriveRepository) ChangeTripStatus(ctx context.Context, tripId uuid.UUID
 	newCtx, span := tr.Start(ctx, "driver.repository.mongo: ChangeTripStatus")
 	defer span.End()
 
-	filter := bson.M{"trip_id": tripId}
-	update := bson.M{"$set": bson.M{"status": status}}
+	filter := bson.M{"trip_id": tripId.String()}
+	update := bson.M{"$set": bson.M{"status": string(status)}}
 
 	_, err := r.driverCollection.UpdateOne(newCtx, filter, update)
 	if err != nil {

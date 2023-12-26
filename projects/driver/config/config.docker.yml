@@ -21,9 +21,9 @@ metrics:
   dsn: "<sentry_dsn_for_service>"
 
 graceful_shutdown:
-  delay: "5s"
-  wait_timeout: "5s"
-  callback_timeout: "2s"
+  delay: "3s"
+  wait_timeout: "15s"
+  callback_timeout: "5s"
 
 http:
   host: "0.0.0.0"
@@ -45,17 +45,17 @@ migrations_mongo:
 
 kafka_reader:
   brokers:
-    - "TODO_broker"
-  topic: "TODO_topic_here"
-  id_group: "TODO_id_group_here"
-  min_bytes: 1
+    - "kafka:9092"
+  topic: "outbound"
+  id_group: "driver-service"
+  min_bytes: 32
   max_bytes: 2048
 
 kafka_writer:
   brokers:
-    - broker1.todo
-  topic: "TODO_my_topic"
-  id_group: "TODO_group_id"
+    - "kafka:9092"
+  topic: "inbound"
+  id_group: "trip-service"
 
 scraper:
   scrape_interval: 3s
