@@ -20,9 +20,9 @@ metrics:
   dsn: "<sentry_dsn_for_service>"
 
 graceful_shutdown:
-  delay: "5s"
-  wait_timeout: "5s"
-  callback_timeout: "2s"
+  delay: "3s"
+  wait_timeout: "15s"
+  callback_timeout: "5s"
 
 http:
   host: "0.0.0.0"

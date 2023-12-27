@@ -20,23 +20,23 @@ func abortWithBadResponse(ctx *gin.Context, logger *zap.Logger, statusCode int, 
 	ctx.AbortWithStatusJSON(statusCode, models.Error{Message: message})
 }
 
-func answerWithGoodResponse(ctx *gin.Context, logger *zap.Logger, statusCode int, resp interface{}) {
-	logger.Debug(fmt.Sprintf("%s: %d %v", ctx.Request.URL, statusCode, resp))
-	ctx.AbortWithStatusJSON(statusCode, resp)
+func answerWithGoodResponse(ctx *gin.Context, logger *zap.Logger, statusCode int) {
+	logger.Debug(fmt.Sprintf("%s: %d %v", ctx.Request.URL, statusCode))
+	ctx.AbortWithStatusJSON(statusCode, http.NoBody)
 }
 
-func CallAbortByErrorCode(ctx *gin.Context, logger *zap.Logger, statusCode int, resp interface{}) {
+func CallAbortByErrorCode(ctx *gin.Context, logger *zap.Logger, statusCode int, resp error) {
 	errorType := statusCode / 100 % 10
 
 	switch errorType {
 	case 1, 2, 3:
-		answerWithGoodResponse(ctx, logger, statusCode, resp)
+		answerWithGoodResponse(ctx, logger, statusCode)
 	case 4:
-		abortWithBadResponse(ctx, logger, statusCode, fmt.Sprintf("%s", resp))
+		abortWithBadResponse(ctx, logger, statusCode, resp.Error())
 	case 5:
-		abortWithErrorResponse(ctx, logger, statusCode, fmt.Sprintf("%s", resp))
+		abortWithErrorResponse(ctx, logger, statusCode, resp.Error())
 	default:
-		abortWithErrorResponse(ctx, logger, statusCode, fmt.Sprintf("%v", resp))
+		abortWithErrorResponse(ctx, logger, statusCode, resp.Error())
 	}
 }
 
