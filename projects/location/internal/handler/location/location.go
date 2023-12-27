@@ -41,7 +41,8 @@ func (h *LocationHandler) GetDrivers(ctx *gin.Context, params generated.GetDrive
 		resp[i] = models.ToDriverResponse(driver)
 	}
 
-	ctx.JSON(http.StatusOK, resp)
+	respGD := models.GetDriversResponse{Drivers: resp}
+	ctx.JSON(http.StatusOK, respGD)
 }
 
 func (h *LocationHandler) UpdateDriverLocation(ctx *gin.Context, driverId openapitypes.UUID) {
