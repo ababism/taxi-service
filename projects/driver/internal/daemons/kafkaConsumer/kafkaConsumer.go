@@ -103,14 +103,14 @@ func (kc *KafkaConsumer) consumeMessages(mainCtx context.Context) {
 			logger.Error("error while unmarshalling message value from kafka to StatusUpdateEvent", zap.Error(err))
 			continue
 		}
-		tripId, err := ParseUUID(suEvent.ID)
+		tripId, err := ParseUUID(suEvent.Data.TripID)
 		if err != nil {
-			logger.Error(fmt.Sprintf("error while parsing TripId=%s to UUID", suEvent.ID), zap.Error(err))
+			logger.Error(fmt.Sprintf("error while parsing TripId=%s to UUID", suEvent.RequestId), zap.Error(err))
 			continue
 		}
 		switch event.Type {
 		case acceptCommandType:
-			err = kc.driverService.UpdateTripStatus(ctxLog, tripId, domain.TripStatuses.GetDriverFound())
+			err = kc.driverService.UpdateTripStatusAndDriver(ctxLog, tripId, suEvent.Data.DriverId, domain.TripStatuses.GetDriverFound())
 		case cancelCommandType:
 			err = kc.driverService.UpdateTripStatus(ctxLog, tripId, domain.TripStatuses.GetCanceled())
 		case endCommandType:

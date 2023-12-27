@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/segmentio/kafka-go"
 	"log"
 	"time"
@@ -36,21 +37,35 @@ func main() {
 	driverId = "e4142f80-2d8c-4864-9b45-8f9eaf60dc1f"
 	tripId = "550e8400-e29b-41d4-a716-446655440000"
 
-	var (
-		lat float32 = 1
-		lng float32 = 1
-	)
-	createMessage := MakeCreateCommand(TripCommandCreate, driverId, tripId, lat, lng)
-	produceCreateMessage(wr, createMessage)
-
+	//var (
+	//	lat float32 = 1
+	//	lng float32 = 1
+	//)
+	//createMessage := MakeCreateCommand(TripCommandCreate, driverId, tripId, lat, lng)
+	//produceCreateMessage(wr, createMessage)
+	var message TripCommand
+	//message = MakeCommand(TripCommandAccept, driverId, tripId)
+	//produceMessage(wr, message)
+	//
+	//message = MakeCommand(TripCommandStart, driverId, tripId)
+	//produceMessage(wr, message)
+	//
+	message = MakeCommand(TripCommandEnd, driverId, tripId)
+	produceMessage(wr, message)
 	log.Printf("Exited")
 }
 
+func generateRequestID() string {
+	id := uuid.New()
+	return id.String()
+}
+
 func MakeCreateCommand(commandType CommandType, driverId string, tripId string, lat float32, lng float32) CreatedTripCommand {
+	reqId := generateRequestID()
 	command := CreatedTripCommand{
 		// real.
 		//ID:              "h4110iam-v4ry-t1r4-d4nd-w4ntt0s1eep",
-		ID:              driverId,
+		RequestId:       reqId,
 		Source:          Source,
 		Type:            string(commandType),
 		DataContentType: "application/json",
@@ -76,14 +91,16 @@ func MakeCreateCommand(commandType CommandType, driverId string, tripId string, 
 }
 
 func MakeCommand(commandType CommandType, driverId string, tripId string) TripCommand {
+	reqId := generateRequestID()
 	command := TripCommand{
-		DriverId:        driverId,
+		RequestId:       reqId,
 		Source:          Source,
 		Type:            commandType,
 		DataContentType: "application/json",
 		Time:            time.Now(),
 		Data: Data{
-			TripID: tripId,
+			TripID:   tripId,
+			DriverId: driverId,
 		},
 	}
 	return command

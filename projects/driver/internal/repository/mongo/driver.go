@@ -11,6 +11,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	global "go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
 
@@ -128,9 +130,37 @@ func (r *DriveRepository) ChangeTripStatus(ctx context.Context, tripId uuid.UUID
 	newCtx, span := tr.Start(ctx, "driver.repository.mongo: ChangeTripStatus")
 	defer span.End()
 
+	span.AddEvent("changing trip status", trace.WithAttributes(attribute.String("trip_id", tripId.String()), attribute.String("status", string(status))))
+
 	filter := bson.M{"trip_id": tripId.String()}
 	update := bson.M{"$set": bson.M{"status": string(status)}}
 
+	_, err := r.driverCollection.UpdateOne(newCtx, filter, update)
+	if err != nil {
+		logger.Error("Failed to update trip status in MongoDB", zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
+// ChangeTripStatus changes Trip (with tripId from parameter) status in db to status parameter
+func (r *DriveRepository) ChangeTripStatusAndDriver(ctx context.Context, tripId uuid.UUID, driverId string, status domain.TripStatus) error {
+	logger := zapctx.Logger(ctx)
+
+	tr := global.Tracer(domain.ServiceName)
+	newCtx, span := tr.Start(ctx, "driver.repository.mongo: ChangeTripStatusAndDriver")
+	defer span.End()
+
+	span.AddEvent("changing trip:", trace.WithAttributes(attribute.String("trip_id", tripId.String()), attribute.String("driver_id", driverId), attribute.String("status", string(status))))
+
+	filter := bson.M{"trip_id": tripId.String()}
+	update := bson.M{
+		"$set": bson.M{
+			"status":    string(status),
+			"driver_id": driverId,
+		},
+	}
 	_, err := r.driverCollection.UpdateOne(newCtx, filter, update)
 	if err != nil {
 		logger.Error("Failed to update trip status in MongoDB", zap.Error(err))
@@ -155,5 +185,6 @@ func (r *DriveRepository) InsertTrip(ctx context.Context, trip domain.Trip) erro
 		return err
 	}
 
+	//logger.Debug("inserted id mongo: ", zap.String("uuid", res.InsertedID))
 	return nil
 }

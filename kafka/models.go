@@ -16,12 +16,13 @@ const (
 type CommandType string
 
 type Data struct {
-	TripID string  `json:"trip_id"`
-	Reason *string `json:"reason,omitempty"`
+	TripID   string  `json:"trip_id"`
+	DriverId string  `json:"driver_id,omitempty"`
+	Reason   *string `json:"reason,omitempty"`
 }
 
 type TripCommand struct {
-	DriverId        string      `json:"id"`
+	RequestId       string      `json:"id"`
 	Source          string      `json:"source"`
 	Type            CommandType `json:"type"`
 	DataContentType string      `json:"datacontenttype"`
@@ -30,7 +31,7 @@ type TripCommand struct {
 }
 
 type CreatedTripCommand struct {
-	ID              string          `json:"id"`
+	RequestId       string          `json:"id"`
 	Source          string          `json:"source"`
 	Type            string          `json:"type"`
 	DataContentType string          `json:"datacontenttype"`
