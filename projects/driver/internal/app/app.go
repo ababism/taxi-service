@@ -117,7 +117,7 @@ func NewApp(cfg *config.Config) (*App, error) {
 	logger.Info(fmt.Sprintf("Init %s – success", cfg.App.Name))
 
 	// Scraper for event calling
-	scr := scraper.NewScraper(*logger, driverService)
+	scr := scraper.NewScraper(logger, driverService)
 	graceful_shutdown.AddCallback(
 		&graceful_shutdown.Callback{
 			Name:  "Data scraper stop",
@@ -128,6 +128,7 @@ func NewApp(cfg *config.Config) (*App, error) {
 	if err != nil {
 		logger.Fatal("can't parse time from scraper LongPollTimeout config string:", zap.Error(err))
 	}
+	logger.Info("Scraper interval – ", zap.Duration("interval", scrapeInterval))
 
 	scr.Start(scrapeInterval)
 	logger.Info("Init Scraper – success")

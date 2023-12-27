@@ -41,5 +41,9 @@ func (tm *TripMap) GetTripChannel(driverID *string) (chan *uuid.UUID, bool) {
 func (tm *TripMap) DeleteTripChannel(driverID *string) {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
-	delete(tm.trips, driverID)
+	channel, exists := tm.trips[driverID]
+	if exists {
+		close(channel)
+		delete(tm.trips, driverID)
+	}
 }

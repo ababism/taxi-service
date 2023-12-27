@@ -28,11 +28,11 @@ graceful_shutdown:
 http:
   host: "0.0.0.0"
   port: 8080
-  read_timeout: "1s"
-  write_timeout: "1s"
+  read_timeout: "15s"
+  write_timeout: "15s"
 
 location_client:
-  uri: "http://location-svc:8084"
+  uri: "http://location-svc:8084/api/v1"
 
 mongo:
   database: driver
@@ -58,10 +58,10 @@ kafka_writer:
   id_group: "trip-service"
 
 scraper:
-  scrape_interval: 3s
+  scrape_interval: 10s
 
 long_poll:
-  long_poll_timeout: 4s
+  long_poll_timeout: 10s
 
 tracer:
   enable: true

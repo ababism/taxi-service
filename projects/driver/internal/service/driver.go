@@ -6,7 +6,6 @@ import (
 	"github.com/juju/zaputil/zapctx"
 	"github.com/pkg/errors"
 	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
-
 	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/service/adapters"
 	global "go.opentelemetry.io/otel"
 	"go.uber.org/zap"
@@ -299,8 +298,10 @@ func (s *driverService) UpdateTripStatus(ctx context.Context, tripId uuid.UUID, 
 }
 
 // GetDrivers retrieves driver locations in the service layer
-func (s *driverService) GetDrivers(ctx context.Context, driverLocation domain.LatLngLiteral, radius float32) ([]domain.DriverLocation, error) {
-	log := zapctx.Logger(ctx)
+func (s *driverService) GetDrivers(ctx context.Context, driverLocation domain.LatLngLiteral, radius float32, temp string) ([]domain.DriverLocation, error) {
+
+	logger := zapctx.Logger(ctx)
+	logger.Info("driver-service: GETDRIVERS")
 
 	tr := global.Tracer(domain.ServiceName)
 	newCtx, span := tr.Start(ctx, "driver.service: GetDrivers")
@@ -309,9 +310,10 @@ func (s *driverService) GetDrivers(ctx context.Context, driverLocation domain.La
 	// Call the repository method to get driver locations
 	driverLocations, err := s.locationClient.GetDrivers(newCtx, driverLocation, radius)
 	if err != nil {
-		log.Error("driver-service: get drivers from repository", zap.Error(err))
+		logger.Error("driver-service: get drivers from repository", zap.Error(err))
 		return nil, domain.FilterErrors(err)
 	}
+	logger.Info("driver-service: driverLocation find", zap.Any("locations:", driverLocations))
 
 	return driverLocations, nil
 }

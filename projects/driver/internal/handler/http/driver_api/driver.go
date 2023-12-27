@@ -3,7 +3,6 @@ package driver_api
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/gorilla/websocket"
 	"github.com/juju/zaputil/zapctx"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
@@ -39,14 +38,14 @@ func (h *DriverHandler) GetTrips(ginCtx *gin.Context, params generated.GetTripsP
 
 	ctx := zapctx.WithLogger(ctxTrace, h.logger)
 
-	upg := websocket.Upgrader{}
-	conn, err := upg.Upgrade(ginCtx.Writer, ginCtx.Request, nil)
-	defer conn.Close()
-
-	if err != nil {
-		http.Error(ginCtx.Writer, "Could not upgrade to WebSocket", http.StatusBadRequest)
-		return
-	}
+	//upg := websocket.Upgrader{}
+	//conn, err := upg.Upgrade(ginCtx.Writer, ginCtx.Request, nil)
+	//defer conn.Close()
+	//
+	//if err != nil {
+	//	http.Error(ginCtx.Writer, "Could not upgrade to WebSocket", http.StatusBadRequest)
+	//	return
+	//}
 
 	driverId := params.UserId.String()
 	incomingTrip, ok := domain.IncomingTrips.GetTripChannel(&driverId)
@@ -61,12 +60,14 @@ func (h *DriverHandler) GetTrips(ginCtx *gin.Context, params generated.GetTripsP
 	timer := time.NewTimer(h.WaitTimeout).C
 	tripsResp := make([]domain.Trip, 0)
 	go func() {
-		tripId := <-incomingTrip
-		trip, err := h.driverService.GetTripByID(ctx, params.UserId, *tripId)
-		if err == nil {
-			tripsResp = append(tripsResp, *trip)
-			resp := models.ToTripResponse(*trip)
-			conn.WriteJSON(resp)
+		for {
+			tripId := <-incomingTrip
+			trip, err := h.driverService.GetTripByID(ctx, params.UserId, *tripId)
+			if err == nil {
+				tripsResp = append(tripsResp, *trip)
+				//resp := models.ToTripResponse(*trip)
+				//conn.WriteJSON(resp)
+			}
 		}
 	}()
 	<-timer

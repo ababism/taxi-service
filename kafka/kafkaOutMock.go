@@ -30,29 +30,29 @@ func main() {
 	}
 	defer wr.Close()
 
-	var (
-		driverId string
-		tripId   string
-	)
-	driverId = "e4142f80-2d8c-4864-9b45-8f9eaf60dc1f"
-	tripId = "550e8400-e29b-41d4-a716-446655440000"
+	driverId := "e4142f80-2d8c-4864-9b45-8f9eaf60dc1f"
+	tripId := "550e8400-e29b-41d4-a716-446655440000"
+	driverId = "2b9afec4-ee95-4849-a16e-dfd7d3144050"
+	tripId = "071aacff-dd3f-40fd-b135-486d198a3f64"
 
-	//var (
-	//	lat float32 = 1
-	//	lng float32 = 1
-	//)
-	//createMessage := MakeCreateCommand(TripCommandCreate, driverId, tripId, lat, lng)
-	//produceCreateMessage(wr, createMessage)
-	var message TripCommand
+	var (
+		lat float32 = 1
+		lng float32 = 1
+	)
+	createMessage := MakeCreateCommand(TripCommandCreate, tripId, lat, lng)
+	produceCreateMessage(wr, createMessage)
+
+	//var message TripCommand
 	//message = MakeCommand(TripCommandAccept, driverId, tripId)
 	//produceMessage(wr, message)
 	//
 	//message = MakeCommand(TripCommandStart, driverId, tripId)
 	//produceMessage(wr, message)
 	//
-	message = MakeCommand(TripCommandEnd, driverId, tripId)
-	produceMessage(wr, message)
-	log.Printf("Exited")
+	//message = MakeCommand(TripCommandEnd, driverId, tripId)
+	//produceMessage(wr, message)
+	log.Println("Exited")
+	log.Println(driverId)
 }
 
 func generateRequestID() string {
@@ -60,7 +60,7 @@ func generateRequestID() string {
 	return id.String()
 }
 
-func MakeCreateCommand(commandType CommandType, driverId string, tripId string, lat float32, lng float32) CreatedTripCommand {
+func MakeCreateCommand(commandType CommandType, tripId string, lat float32, lng float32) CreatedTripCommand {
 	reqId := generateRequestID()
 	command := CreatedTripCommand{
 		// real.

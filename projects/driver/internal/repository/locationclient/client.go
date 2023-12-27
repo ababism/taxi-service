@@ -32,19 +32,20 @@ func GetRequestIDFromContext(ctx context.Context) (string, bool) {
 }
 
 func (c Client) GetDrivers(ctx context.Context, driverLocation domain.LatLngLiteral, radius float32) ([]domain.DriverLocation, error) {
-	log := zapctx.Logger(ctx)
+	logger := zapctx.Logger(ctx)
 
 	tr := global.Tracer(domain.ServiceName)
 	newCtx, span := tr.Start(ctx, "driver.repository.locationclient: GetDrivers")
 
 	defer span.End()
+	logger.Debug("Start GetDrivers:")
 
-	requestID, ok := GetRequestIDFromContext(newCtx)
+	requestID, _ := GetRequestIDFromContext(newCtx)
 	var (
 		resp *generated.GetDriversResponse
 		err  error
 	)
-	if ok {
+	if false {
 		span.AddEvent("passed requestId for GetDrivers handler from location service",
 			trace.WithAttributes(attribute.String(KeyRequestID, requestID)))
 
@@ -58,7 +59,7 @@ func (c Client) GetDrivers(ctx context.Context, driverLocation domain.LatLngLite
 			Radius: radius,
 		}, reqEditor)
 	} else {
-		log.Error("can't find RequestID in ctx")
+		logger.Error("can't find RequestID in ctx")
 		resp, err = c.httpDoer.GetDriversWithResponse(newCtx, &generated.GetDriversParams{
 			Lat:    driverLocation.Lat,
 			Lng:    driverLocation.Lng,
@@ -66,28 +67,40 @@ func (c Client) GetDrivers(ctx context.Context, driverLocation domain.LatLngLite
 		})
 	}
 	if err != nil {
-		log.Error("error while getting drivers from location service:", zap.Error(err))
+		logger.Error("error while getting drivers from location service:", zap.Error(err))
 		return nil, err
 	}
+	logger.Debug("Checking response dl:")
+
 	var locationErrorMessage Error
 	if resp.HTTPResponse.StatusCode != http.StatusOK {
 		if err = json.Unmarshal(resp.Body, &locationErrorMessage); err != nil {
-			log.Error("error while decoding location error message JSON:", zap.Error(err))
+			logger.Error("error while decoding location error message JSON:", zap.Error(err))
 			return nil, err
 		}
-		log.Error("can't get drivers from location service ended:", zap.Int("status", resp.HTTPResponse.StatusCode), zap.Error(locationErrorMessage))
+		logger.Error("can't get drivers from location service ended:", zap.Int("status", resp.HTTPResponse.StatusCode), zap.Error(locationErrorMessage))
 		return nil, locationErrorMessage
 	}
+	logger.Debug("Unmarshal dl:")
 
 	//var driverLocations GetDriversResponse
-	var driverLocations []generated.Driver
-	if err = json.Unmarshal(resp.Body, &driverLocations); err != nil {
-		log.Error("error while decoding driver location JSON:", zap.Error(err))
+	//var driverLocations []generated.Driver
+	type GetDriversResponse struct {
+		Drivers []generated.Driver `json:"drivers"`
+	}
+	var response GetDriversResponse
+
+	err = json.Unmarshal(resp.Body, &response)
+	if err != nil {
+		logger.Error("error while decoding driver location JSON:", zap.Error(err))
 		return nil, err
 	}
-	res, err := ToDriverLocationsDomain(driverLocations)
+
+	logger.Debug("DRIVEr LOCATIONS:", zap.Any("dLoc", response.Drivers))
+
+	res, err := ToDriverLocationsDomain(response.Drivers)
 	if err != nil {
-		log.Error("error while converting driver locations to domain:", zap.Error(err))
+		logger.Error("error while converting driver locations to domain:", zap.Error(err))
 		return nil, err
 	}
 	return res, nil
