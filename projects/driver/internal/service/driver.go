@@ -137,9 +137,7 @@ func (s *driverService) CancelTrip(ctx context.Context, driverId uuid.UUID, trip
 		logger.Error("can't get trip from repository", zap.Error(err))
 		return err
 	}
-	//if trip.Status == nil || *trip.Status == domain.TripStatuses.GetDriverSearch() {
-	//	return errors.Wrap(domain.ErrAccessDenied, "trip hasn't connected with driver yet")
-	//}
+
 	if trip.DriverId != nil && *trip.DriverId != driverId.String() {
 		return errors.Wrap(domain.ErrAccessDenied, "trip driver id does not match passed id")
 	}
@@ -165,10 +163,7 @@ func (s *driverService) StartTrip(ctx context.Context, driverId uuid.UUID, tripI
 		logger.Error("can't get trip from repository", zap.Error(err))
 		return err
 	}
-	//  ask about *trip.Status != s.tripStatuses.GetOnPosition()
-	//if trip.Status == nil || *trip.Status != domain.TripStatuses.GetOnPosition() || *trip.Status != domain.TripStatuses.GetDriverFound() {
-	//	return errors.Wrap(domain.ErrAccessDenied, "trip hasn't connected with driver yet")
-	//}
+
 	if trip.DriverId != nil && *trip.DriverId != driverId.String() {
 		return errors.Wrap(domain.ErrAccessDenied, "trip driver id does not match passed id")
 	}
@@ -217,11 +212,7 @@ func (s *driverService) UpdateTripStatusAndDriver(ctx context.Context, tripId uu
 	tr := global.Tracer(domain.ServiceName)
 	newCtx, span := tr.Start(ctx, "driver.service: UpdateTripStatusAndDriver")
 	defer span.End()
-	//trip, err := s.r.GetTripByID(newCtx, tripId)
-	//if err != nil || trip == nil {
-	//	logger.Error("can't get trip from repository", zap.Error(err))
-	//	return err
-	//}
+
 	err := s.r.ChangeTripStatusAndDriver(newCtx, tripId, driverId, status)
 
 	if err != nil {
@@ -239,11 +230,7 @@ func (s *driverService) UpdateTripStatus(ctx context.Context, tripId uuid.UUID, 
 	tr := global.Tracer(domain.ServiceName)
 	newCtx, span := tr.Start(ctx, "driver.service: UpdateTripStatus")
 	defer span.End()
-	//trip, err := s.r.GetTripByID(newCtx, tripId)
-	//if err != nil || trip == nil {
-	//	logger.Error("can't get trip from repository", zap.Error(err))
-	//	return err
-	//}
+
 	err := s.r.ChangeTripStatus(newCtx, tripId, status)
 
 	if err != nil {
