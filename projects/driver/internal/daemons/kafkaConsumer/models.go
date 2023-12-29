@@ -4,7 +4,7 @@ import "time"
 
 //
 //type Event struct {
-//	ID              string    `json:"id"`
+//	RequestId              string    `json:"id"`
 //	Source          string    `json:"source"`
 //	Type            string    `json:"type"`
 //	DataContentType string    `json:"datacontenttype"`
@@ -13,7 +13,7 @@ import "time"
 //}
 
 type StatusUpdateEvent struct {
-	ID              string    `json:"id"`
+	RequestId       string    `json:"id"`
 	Source          string    `json:"source"`
 	Type            string    `json:"type"`
 	DataContentType string    `json:"datacontenttype"`
@@ -22,7 +22,8 @@ type StatusUpdateEvent struct {
 }
 
 type TripData struct {
-	TripID string `json:"trip_id"`
+	DriverId string `json:"driver_id,omitempty"`
+	TripID   string `json:"trip_id"`
 }
 
 type CreatedTripEvent struct {
@@ -35,12 +36,13 @@ type CreatedTripEvent struct {
 }
 
 type CreatedTripData struct {
-	TripID  string        `json:"trip_id"`
-	OfferID string        `json:"offer_id"`
-	Price   TripPrice     `json:"price"`
-	From    LatLngLiteral `json:"from"`
-	To      LatLngLiteral `json:"to"`
-	Status  string        `json:"status"`
+	TripID   string        `json:"trip_id"`
+	OfferID  string        `json:"offer_id"`
+	Price    TripPrice     `json:"price"`
+	From     LatLngLiteral `json:"from"`
+	To       LatLngLiteral `json:"to"`
+	Status   string        `json:"status"`
+	DriverId string        `json:"driver_id,omitempty"`
 }
 
 // Тут было float64 по схеме kafka, но мне надо float32 по контракту location (кривая стркутура?)

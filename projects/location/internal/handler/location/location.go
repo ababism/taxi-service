@@ -32,7 +32,7 @@ func (h *LocationHandler) GetDrivers(ctx *gin.Context, params generated.GetDrive
 	ctxTraceLog := zapctx.WithLogger(ctxTrace, h.logger)
 	drivers, err := h.locationService.GetDrivers(ctxTraceLog, params.Lat, params.Lng, params.Radius)
 	if err != nil {
-		CallAbortByErrorCode(ctx, h.logger, MapErrorToCode(err), err.Error())
+		CallAbortByErrorCode(ctx, h.logger, MapErrorToCode(err), err)
 		return
 	}
 
@@ -41,7 +41,8 @@ func (h *LocationHandler) GetDrivers(ctx *gin.Context, params generated.GetDrive
 		resp[i] = models.ToDriverResponse(driver)
 	}
 
-	ctx.JSON(http.StatusOK, resp)
+	respGD := models.GetDriversResponse{Drivers: resp}
+	ctx.JSON(http.StatusOK, respGD)
 }
 
 func (h *LocationHandler) UpdateDriverLocation(ctx *gin.Context, driverId openapitypes.UUID) {
@@ -53,13 +54,13 @@ func (h *LocationHandler) UpdateDriverLocation(ctx *gin.Context, driverId openap
 
 	var body generated.UpdateDriverLocationJSONRequestBody
 	if err := ctx.BindJSON(&body); err != nil {
-		CallAbortByErrorCode(ctx, h.logger, http.StatusBadRequest, domain.ErrIncorrectBody.Error())
+		CallAbortByErrorCode(ctx, h.logger, http.StatusBadRequest, domain.ErrIncorrectBody)
 		return
 	}
 
 	err := h.locationService.UpdateDriverLocation(ctxTraceLog, driverId, body.Lat, body.Lng)
 	if err != nil {
-		CallAbortByErrorCode(ctx, h.logger, MapErrorToCode(err), err.Error())
+		CallAbortByErrorCode(ctx, h.logger, MapErrorToCode(err), err)
 		return
 	}
 

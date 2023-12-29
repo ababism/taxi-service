@@ -26,15 +26,15 @@ func ToDriverLocationDomain(r generated.Driver) (*domain.DriverLocation, error) 
 }
 
 func ToDriverLocationsDomain(dLocations []generated.Driver) ([]domain.DriverLocation, error) {
-	tripsResponse := make([]domain.DriverLocation, len(dLocations))
+	driversDomain := make([]domain.DriverLocation, len(dLocations))
 
-	for _, driverLocation := range dLocations {
-		l, err := ToDriverLocationDomain(driverLocation)
+	for i, driverLocation := range dLocations {
+		dlDom, err := ToDriverLocationDomain(driverLocation)
 		if err != nil {
 			return nil, err
 		}
-		tripsResponse = append(tripsResponse, *l)
+		driversDomain[i] = *dlDom
 	}
 
-	return tripsResponse, nil
+	return driversDomain, nil
 }
