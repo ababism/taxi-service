@@ -39,14 +39,19 @@ func (r *DriveRepository) GetTripsByStatus(ctx context.Context, status domain.Tr
 
 	var trips []domain.Trip
 	for cursor.Next(newCtx) {
-		var trip domain.Trip
+		var trip models.MongoTrip
 		err = cursor.Decode(&trip)
 		if err != nil {
 			errExplanation := fmt.Sprintf("Error decoding trip by status %s", status)
 			logger.Error(errExplanation, zap.Error(err))
 			return nil, errors.Wrap(err, errExplanation)
 		}
-		trips = append(trips, trip)
+		dTrip, err := models.ToDomainTripModel(trip)
+		if err != nil {
+			logger.Error("[driver.repository.mongo] can't parse model to domain", zap.Error(err))
+			return nil, errors.Wrap(err, "[driver.repository.mongo] can't parse model to domain")
+		}
+		trips = append(trips, *dTrip)
 	}
 
 	if err = cursor.Err(); err != nil {
@@ -185,6 +190,5 @@ func (r *DriveRepository) InsertTrip(ctx context.Context, trip domain.Trip) erro
 		return err
 	}
 
-	//logger.Debug("inserted id mongo: ", zap.String("uuid", res.InsertedID))
 	return nil
 }

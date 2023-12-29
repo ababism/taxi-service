@@ -24,10 +24,8 @@ func NewClient(client *generated.ClientWithResponses) *Client {
 	return &Client{httpDoer: client}
 }
 
-const KeyRequestID = "RequestID"
-
 func GetRequestIDFromContext(ctx context.Context) (string, bool) {
-	requestID, ok := ctx.Value(KeyRequestID).(string)
+	requestID, ok := ctx.Value(domain.KeyRequestID).(string)
 	return requestID, ok
 }
 
@@ -38,19 +36,18 @@ func (c Client) GetDrivers(ctx context.Context, driverLocation domain.LatLngLite
 	newCtx, span := tr.Start(ctx, "driver.repository.locationclient: GetDrivers")
 
 	defer span.End()
-	logger.Debug("Start GetDrivers:")
 
-	requestID, _ := GetRequestIDFromContext(newCtx)
+	requestID, ok := GetRequestIDFromContext(newCtx)
 	var (
 		resp *generated.GetDriversResponse
 		err  error
 	)
-	if false {
+	if ok {
 		span.AddEvent("passed requestId for GetDrivers handler from location service",
-			trace.WithAttributes(attribute.String(KeyRequestID, requestID)))
+			trace.WithAttributes(attribute.String(domain.KeyRequestID, requestID)))
 
 		reqEditor := func(newCtx context.Context, req *http.Request) error {
-			req.Header.Set(KeyRequestID, requestID)
+			req.Header.Set(domain.KeyRequestID, requestID)
 			return nil
 		}
 		resp, err = c.httpDoer.GetDriversWithResponse(newCtx, &generated.GetDriversParams{
@@ -70,7 +67,6 @@ func (c Client) GetDrivers(ctx context.Context, driverLocation domain.LatLngLite
 		logger.Error("error while getting drivers from location service:", zap.Error(err))
 		return nil, err
 	}
-	logger.Debug("Checking response dl:")
 
 	var locationErrorMessage Error
 	if resp.HTTPResponse.StatusCode != http.StatusOK {
@@ -81,7 +77,6 @@ func (c Client) GetDrivers(ctx context.Context, driverLocation domain.LatLngLite
 		logger.Error("can't get drivers from location service ended:", zap.Int("status", resp.HTTPResponse.StatusCode), zap.Error(locationErrorMessage))
 		return nil, locationErrorMessage
 	}
-	logger.Debug("Unmarshal dl:")
 
 	//var driverLocations GetDriversResponse
 	//var driverLocations []generated.Driver
@@ -95,8 +90,6 @@ func (c Client) GetDrivers(ctx context.Context, driverLocation domain.LatLngLite
 		logger.Error("error while decoding driver location JSON:", zap.Error(err))
 		return nil, err
 	}
-
-	logger.Debug("DRIVEr LOCATIONS:", zap.Any("dLoc", response.Drivers))
 
 	res, err := ToDriverLocationsDomain(response.Drivers)
 	if err != nil {

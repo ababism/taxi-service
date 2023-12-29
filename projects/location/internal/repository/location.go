@@ -44,6 +44,7 @@ func (r *locationRepository) GetDrivers(ctx context.Context, lat float32, lng fl
 	tr := global.Tracer(domain.TracerName)
 	_, span := tr.Start(ctx, "location.repository: GetDrivers")
 	defer span.End()
+	logger := zapctx.Logger(ctx)
 
 	// ATTENTION: Считаем, что radius в метрах
 	rows, err := r.db.Query(getDriversByRadius, float64(lat), float64(lng), float64(radius))
@@ -65,6 +66,7 @@ func (r *locationRepository) GetDrivers(ctx context.Context, lat float32, lng fl
 		drivers = append(drivers, driver)
 	}
 
+	logger.Debug("drivers from location:", zap.Any("driver slice:", drivers))
 	return drivers, nil
 }
 

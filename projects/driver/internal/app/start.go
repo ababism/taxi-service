@@ -45,7 +45,7 @@ func (a *App) startHTTPServer(ctx context.Context) {
 
 	longPollTimeout, err := a.cfg.LongPoll.GetLongPollTimeout()
 	if err != nil {
-		a.logger.Fatal("can't parse time from scraper LongPollTimeout config string:", zap.Error(err))
+		a.logger.Fatal("can't parse time from LongPollTimeout config string:", zap.Error(err))
 	}
 
 	// Добавляем роуты api

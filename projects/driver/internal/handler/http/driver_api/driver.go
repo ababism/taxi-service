@@ -41,37 +41,48 @@ func (h *DriverHandler) GetTrips(ginCtx *gin.Context, params generated.GetTripsP
 	//upg := websocket.Upgrader{}
 	//conn, err := upg.Upgrade(ginCtx.Writer, ginCtx.Request, nil)
 	//defer conn.Close()
-	//
 	//if err != nil {
 	//	http.Error(ginCtx.Writer, "Could not upgrade to WebSocket", http.StatusBadRequest)
 	//	return
 	//}
 
 	driverId := params.UserId.String()
-	incomingTrip, ok := domain.IncomingTrips.GetTripChannel(&driverId)
-	if ok {
-		h.logger.Error("driver should not be in event map")
-	} else {
-		domain.IncomingTrips.AddTrip(&driverId, make(chan *uuid.UUID))
-	}
+	trEventCh, ok := domain.AvailableTripEvents.GetTripChannel(driverId)
 	// Не забудем в конце очистить информацию о водителе в ожидании
-	defer domain.IncomingTrips.DeleteTripChannel(&driverId)
+	defer domain.AvailableTripEvents.DeleteTripChannel(driverId)
+	if ok {
+		close(trEventCh)
+		h.logger.Fatal("[driver.handler: GetTrips] new driver should not be in event map")
+		return
+	} else {
+		trEventCh = make(chan uuid.UUID)
+		domain.AvailableTripEvents.AddTripChannel(driverId, trEventCh)
+	}
 
-	timer := time.NewTimer(h.WaitTimeout).C
+	//timer := time.NewTimer(h.WaitTimeout).C
+	timer := time.After(h.WaitTimeout)
 	tripsResp := make([]domain.Trip, 0)
+
 	go func() {
 		for {
-			tripId := <-incomingTrip
-			trip, err := h.driverService.GetTripByID(ctx, params.UserId, *tripId)
-			if err == nil {
-				tripsResp = append(tripsResp, *trip)
-				//resp := models.ToTripResponse(*trip)
-				//conn.WriteJSON(resp)
+			time.Sleep(100 * time.Millisecond)
+			select {
+			case tripId, ok := <-trEventCh:
+				if !ok {
+					return
+				}
+				h.logger.Debug("[driver.api] GetTrips: got event for driver", zap.String("trip_id", tripId.String()))
+				trip, err := h.driverService.GetTripByID(ctx, params.UserId, tripId)
+				if err == nil {
+					tripsResp = append(tripsResp, *trip)
+					//resp := models.ToTripResponse(*trip)
+					//conn.WriteJSON(resp)
+				}
+				continue
 			}
 		}
 	}()
 	<-timer
-
 	resp := models.ToTripsResponse(tripsResp)
 
 	ginCtx.JSON(http.StatusOK, resp)

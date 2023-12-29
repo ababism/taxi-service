@@ -299,9 +299,7 @@ func (s *driverService) UpdateTripStatus(ctx context.Context, tripId uuid.UUID, 
 
 // GetDrivers retrieves driver locations in the service layer
 func (s *driverService) GetDrivers(ctx context.Context, driverLocation domain.LatLngLiteral, radius float32, temp string) ([]domain.DriverLocation, error) {
-
 	logger := zapctx.Logger(ctx)
-	logger.Info("driver-service: GETDRIVERS")
 
 	tr := global.Tracer(domain.ServiceName)
 	newCtx, span := tr.Start(ctx, "driver.service: GetDrivers")
@@ -313,7 +311,6 @@ func (s *driverService) GetDrivers(ctx context.Context, driverLocation domain.La
 		logger.Error("driver-service: get drivers from repository", zap.Error(err))
 		return nil, domain.FilterErrors(err)
 	}
-	logger.Info("driver-service: driverLocation find", zap.Any("locations:", driverLocations))
 
 	return driverLocations, nil
 }

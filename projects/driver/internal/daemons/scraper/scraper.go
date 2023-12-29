@@ -2,6 +2,7 @@ package scraper
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"github.com/juju/zaputil/zapctx"
 	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/domain"
 	"gitlab.com/ArtemFed/mts-final-taxi/projects/driver/internal/service/adapters"
@@ -30,7 +31,7 @@ func (s *Scraper) stopCallback(ctx context.Context) error {
 	return nil
 }
 
-func (s *Scraper) StopFunc() func(context.Context) error {
+func (s Scraper) StopFunc() func(context.Context) error {
 	return s.stopCallback
 }
 
@@ -46,46 +47,50 @@ func (s *Scraper) Start(scrapeInterval time.Duration) {
 	}()
 }
 
+func generateRequestID() string {
+	id := uuid.New()
+	return id.String()
+}
+
+func WithRequestID(ctx context.Context) context.Context {
+	requestID := generateRequestID()
+	return context.WithValue(ctx, domain.KeyRequestID, requestID)
+}
+
 func (s *Scraper) scrape(scrapeInterval time.Duration) {
 	ctx := context.Background()
-	zapctx.WithLogger(ctx, s.logger)
+
+	requestIdCtx := WithRequestID(ctx)
+	ctxLogger := zapctx.WithLogger(requestIdCtx, s.logger)
+
 	tr := global.Tracer(domain.ServiceName)
-	ctxTrace, span := tr.Start(ctx, "driver.daemon.scraper: Scrape", trace.WithNewRoot())
+	ctxTrace, span := tr.Start(ctxLogger, "driver.daemon.scraper: Scrape", trace.WithNewRoot())
 
 	time.Sleep(scrapeInterval)
+
 	s.logger.Debug("[scraper]: scrapping...")
 	trips, err := s.driverService.GetTripsByStatus(ctxTrace, domain.TripStatuses.GetDriverSearch())
 	if err != nil {
-		s.logger.Debug("err Getting Trips By Status:", zap.Error(err))
+		s.logger.Debug("err Getting trips By Status:", zap.Error(err))
 		return
 	}
 	span.AddEvent("Got available trips from mongo: ", trace.WithAttributes(attribute.Int("trips_len", len(trips))))
-	s.logger.Debug("[scraper] available trips from mongo:", zap.Any("trips", trips))
 
 	defer span.End()
 
 	for _, trip := range trips {
-
 		drivers, err := s.driverService.GetDrivers(ctxTrace, *trip.From, domain.SearchRadius, "")
 		if err != nil {
 			s.logger.Debug("err Getting Drivers By Radius:", zap.Error(err))
 			return
 		}
-		span.AddEvent("Got drivers form location:", trace.WithAttributes(attribute.Int("drivers_len", len(trips))))
-		//s.logger.Debug("[scraper]  drivers in radius form location:", zap.Any("drivers", drivers))
+		span.AddEvent("Got drivers form location for trip:", trace.WithAttributes(attribute.String("trip_id", trip.Id.String()), attribute.Int("drivers_len", len(drivers))))
+		s.logger.Debug("[driver.scraper]  got drivers in radius from location:", zap.String("trip_id", trip.Id.String()), zap.Any("drivers", drivers))
 
-		for i, driver := range drivers {
-			if i == 0 {
-				continue
-			}
-			str := driver.DriverId.String()
-			driverCaller, ok := domain.IncomingTrips.GetTripChannel(&str)
-			if ok {
-				//s.logger.Debug("[scraper]: sending event", zap.String("trip_id", trip.Id.String()))
-				driverCaller <- trip.Id
-				span.AddEvent("Sent trip to driver:", trace.WithAttributes(attribute.String("trip_id", trip.Id.String()), attribute.String("driver_id", driver.DriverId.String())))
-				//s.logger.Debug("[scraper]: event sent", zap.String("trip_id", trip.Id.String()))
-			}
+		for _, driver := range drivers {
+			drID := driver.DriverId.String()
+
+			_ = domain.AvailableTripEvents.SendTrip(drID, *trip.Id)
 		}
 	}
 }
