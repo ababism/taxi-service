@@ -105,8 +105,6 @@ func (s *driverService) AcceptTrip(ctx context.Context, driverId uuid.UUID, trip
 	newCtx, span := tr.Start(ctx, "driver.service: AcceptTrip")
 	defer span.End()
 
-	ctx = zapctx.WithLogger(newCtx, logger)
-
 	trip, err := s.r.GetTripByID(newCtx, tripId)
 	if err != nil || trip == nil {
 		logger.Error("can't get trip from repository", zap.Error(err))
@@ -133,8 +131,6 @@ func (s *driverService) CancelTrip(ctx context.Context, driverId uuid.UUID, trip
 	tr := global.Tracer(domain.ServiceName)
 	newCtx, span := tr.Start(ctx, "driver.service: CancelTrip")
 	defer span.End()
-
-	ctx = zapctx.WithLogger(newCtx, logger)
 
 	trip, err := s.r.GetTripByID(newCtx, tripId)
 	if err != nil || trip == nil {
@@ -163,8 +159,6 @@ func (s *driverService) StartTrip(ctx context.Context, driverId uuid.UUID, tripI
 	tr := global.Tracer(domain.ServiceName)
 	newCtx, span := tr.Start(ctx, "driver.service: StartTrip")
 	defer span.End()
-
-	ctx = zapctx.WithLogger(newCtx, logger)
 
 	trip, err := s.r.GetTripByID(newCtx, tripId)
 	if err != nil || trip == nil {
@@ -195,8 +189,6 @@ func (s *driverService) EndTrip(ctx context.Context, driverId uuid.UUID, tripId 
 	newCtx, span := tr.Start(ctx, "driver.service: EndTrip")
 	defer span.End()
 
-	ctx = zapctx.WithLogger(newCtx, logger)
-
 	trip, err := s.r.GetTripByID(newCtx, tripId)
 	if err != nil || trip == nil {
 		logger.Error("can't get trip from repository", zap.Error(err))
@@ -216,41 +208,6 @@ func (s *driverService) EndTrip(ctx context.Context, driverId uuid.UUID, tripId 
 		return err
 	}
 	return nil
-}
-
-// Long poll
-func (s *driverService) GetTrips(ctx context.Context, driverId uuid.UUID) ([]domain.Trip, error) {
-	logger := zapctx.Logger(ctx)
-
-	tr := global.Tracer(domain.ServiceName)
-	newCtx, span := tr.Start(ctx, "driver.service: GetTrips")
-	defer span.End()
-
-	ctx = zapctx.WithLogger(newCtx, logger)
-
-	trips := make([]domain.Trip, 0)
-	// fot loop for 5-10 seconds with timeout:
-	//
-	// 		span.AddEvent("Message from Kafka")
-	//		TripCreated <- Kafka
-	//
-	//		drivers := s.locationClient.GetDrivers(TripCreated.userLocation, radius)
-	//
-	//      for range drivers {
-	//			if dr.id == id {
-	//					trips = trips.append(TripCreated)
-	//			{
-	//      {
-	//
-
-	// TODO DELETE?
-	//trips, err := s.locationClient.GetDrivers(newCtx, driverId)
-	//if err != nil {
-	//	logger.Error("driver-service: EndTrip")
-	//	return nil, err
-	//}
-
-	return trips, nil
 }
 
 // UpdateTripStatus changes the status of the specified trip in the service layer

@@ -19,19 +19,20 @@ type KafkaProducer struct {
 }
 
 func NewKafkaProducer(cfg *Config) *KafkaProducer {
-	writer := kafka.NewWriter(kafka.WriterConfig{
-		Brokers:  cfg.Brokers,
+	writer := kafka.Writer{
+		Addr:     kafka.TCP(cfg.Broker),
 		Topic:    cfg.Topic,
 		Balancer: &kafka.LeastBytes{},
-	})
+	}
 
 	return &KafkaProducer{
-		producer: writer,
+		producer: &writer,
 	}
 }
 
 func (kp *KafkaProducer) SendTripStatusUpdate(ctx context.Context, trip domain.Trip, commandType domain.CommandType, reason *string) error {
-	log := zapctx.Logger(ctx)
+	logger := zapctx.Logger(ctx)
+	logger.Debug("[kafka_producer] config:", zap.String("topic", kp.producer.Topic))
 
 	tr := global.Tracer(domain.ServiceName)
 	newCtx, span := tr.Start(ctx, "driver.repository: SendTripStatusUpdate")
@@ -41,13 +42,13 @@ func (kp *KafkaProducer) SendTripStatusUpdate(ctx context.Context, trip domain.T
 
 	message, err := json.Marshal(tc)
 	if err != nil {
-		log.Error("failed to marshal TripCommand to message:", zap.Error(err))
+		logger.Error("failed to marshal TripCommand to message:", zap.Error(err))
 		return fmt.Errorf("failed to marshal TripCommand to message: %w", domain.ErrInternal)
 	}
 
 	err = kp.SendMessageWithKaKafka(newCtx, message)
 	if err != nil {
-		log.Error("failed write message to kafka:", zap.Error(err))
+		logger.Error("failed write message to kafka:", zap.Error(err))
 		return fmt.Errorf("failed to send message to Kafka: %w", domain.ErrInternal)
 	}
 	return nil

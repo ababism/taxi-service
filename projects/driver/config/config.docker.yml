@@ -52,8 +52,7 @@ kafka_reader:
   max_bytes: 2048
 
 kafka_writer:
-  brokers:
-    - "kafka:9092"
+  broker: "kafka:9094"
   topic: "inbound"
   id_group: "trip-service"
 
