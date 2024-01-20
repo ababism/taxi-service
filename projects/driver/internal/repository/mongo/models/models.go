@@ -40,7 +40,7 @@ func (price *MongoMoney) ToDomain() *domain.Money {
 type MongoTrip struct {
 	DriverId *string             `bson:"driver_id,omitempty"`
 	From     *MongoLatLngLiteral `bson:"from"`
-	Id       *string             `bson:"trip_id"`
+	Id       string              `bson:"trip_id"`
 	Price    *MongoMoney         `bson:"price,omitempty"`
 	Status   MongoTripStatus     `bson:"status"`
 	To       *MongoLatLngLiteral `bson:"to"`
@@ -60,10 +60,10 @@ func ToMongoStatusModel(trip domain.TripStatus) MongoTripStatus {
 }
 
 func ToDomainTripModel(trip MongoTrip) (*domain.Trip, error) {
-	if trip.Id == nil {
-		return nil, errors.New("trip id is nil")
-	}
-	tripId, err := uuid.Parse(*trip.Id)
+	//if trip.Id == nil {
+	//	return nil, errors.New("trip id is nil")
+	//}
+	tripId, err := uuid.Parse(trip.Id)
 	if err != nil {
 		return nil, errors.New("can't parse trip id to uuid")
 	}
@@ -71,7 +71,7 @@ func ToDomainTripModel(trip MongoTrip) (*domain.Trip, error) {
 	t := &domain.Trip{
 		DriverId: trip.DriverId,
 		From:     trip.From.ToDomain(),
-		Id:       &tripId,
+		Id:       tripId,
 		Price:    trip.Price.ToDomain(),
 		Status:   &status,
 		To:       trip.To.ToDomain(),
@@ -87,7 +87,7 @@ func ToMongoTripModel(trip domain.Trip) MongoTrip {
 			Lat: trip.From.Lat,
 			Lng: trip.From.Lng,
 		},
-		Id: &tripId,
+		Id: tripId,
 		Price: &MongoMoney{
 			Amount:   trip.Price.Amount,
 			Currency: trip.Price.Currency,

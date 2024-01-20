@@ -9,7 +9,7 @@ func ToTripResponse(t domain.Trip) generated.Trip {
 	return generated.Trip{
 		DriverId: t.DriverId,
 		From:     ToLatLngLiteralResponse(t.From),
-		Id:       t.Id,
+		Id:       &t.Id,
 		Price:    ToMoneyResponse(t.Price),
 		Status:   ToTripStatusResponse(t.Status),
 		To:       ToLatLngLiteralResponse(t.To),

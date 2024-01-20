@@ -22,7 +22,7 @@ func ToDomainTrip(trip CreatedTripData) (domain.Trip, error) {
 			Lat: trip.From.Lat,
 			Lng: trip.From.Lng,
 		},
-		Id: &tripId,
+		Id: tripId,
 		Price: &domain.Money{
 			Amount:   trip.Price.Amount,
 			Currency: trip.Price.Currency,
