@@ -90,7 +90,7 @@ func (s *Scraper) scrape(scrapeInterval time.Duration) {
 		for _, driver := range drivers {
 			drID := driver.DriverId.String()
 
-			_ = domain.AvailableTripEvents.SendTrip(drID, *trip.Id)
+			_ = domain.AvailableTripEvents.SendTrip(drID, trip.Id)
 		}
 	}
 }
